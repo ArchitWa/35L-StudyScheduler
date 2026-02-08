@@ -1,8 +1,20 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+//import reactLogo from './assets/react.svg' // used for the default starter code
+//import viteLogo from '/vite.svg' // used for the default starter code
+import Homepage from './pages/homepage.jsx'
 import './App.css'
 
+function App() {
+  return (
+    <div className="App">
+      {/* Render the Homepage component */}
+      <Homepage />
+    </div>
+  );
+}
+
+export default App
+/*
 function App() {
   const [count, setCount] = useState(0)
 
@@ -33,3 +45,4 @@ function App() {
 }
 
 export default App
+*/
