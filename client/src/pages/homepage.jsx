@@ -1,5 +1,6 @@
 import React from 'react';
 import './Homepage.css';
+import PartnerCard from '../components/partnercard.jsx';
 
 // --- Helper Component for Unknown Implementations ---
 const PlaceholderComponent = ({ label, width, height }) => (
@@ -45,9 +46,24 @@ const Homepage = () => {
         {/* Section 1: Recommended Partners */}
         <h2 className="section-title">Recommended Study Partners</h2>
         <div className="cards-container">
-          <PlaceholderComponent label="Partner Card (Alex)" width="350px" height="280px" />
-          <PlaceholderComponent label="Partner Card (Maria)" width="350px" height="280px" />
-          <PlaceholderComponent label="Partner Card (David)" width="350px" height="280px" />
+          <PartnerCard
+            firstName="Alex"
+            lastInitial="M"
+            profileImageUrl="https://i.pravatar.cc/150?img=32"
+            onNameClick={() => window.alert("Alex's profile page isn't implemented yet.")}
+          />
+          <PartnerCard
+            firstName="Maria"
+            lastInitial="S"
+            profileImageUrl="https://i.pravatar.cc/150?img=47"
+            onNameClick={() => window.alert("Maria's profile page isn't implemented yet.")}
+          />
+          <PartnerCard
+            firstName="David"
+            lastInitial="K"
+            profileImageUrl="https://i.pravatar.cc/150?img=12"
+            onNameClick={() => window.alert("David's profile page isn't implemented yet.")}
+          />
         </div>
 
         {/* Section 2: Actions */}
