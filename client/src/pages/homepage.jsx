@@ -1,16 +1,7 @@
 import React from 'react';
 import './Homepage.css';
 import PartnerCard from '../components/partnercard.jsx';
-
-// --- Helper Component for Unknown Implementations ---
-const PlaceholderComponent = ({ label, width, height }) => (
-  <div 
-    className="placeholder-component" 
-    style={{ width: width, height: height }}
-  >
-    {label} Component Implementation Needed
-  </div>
-);
+import ActionCard from '../components/actioncard.jsx';
 
 // --- Main Homepage Component ---
 const Homepage = () => {
@@ -55,7 +46,7 @@ const Homepage = () => {
           <PartnerCard
             firstName="Maria"
             lastInitial="S"
-            profileImageUrl="https://i.pravatar.cc/150?img=47"
+            profileImageUrl="https://i.pravatar.cc/150?img=49"
             onNameClick={() => window.alert("Maria's profile page isn't implemented yet.")}
           />
           <PartnerCard
@@ -69,9 +60,21 @@ const Homepage = () => {
         {/* Section 2: Actions */}
         <h2 className="section-title" style={{ marginTop: '20px' }}>What would you like to do?</h2>
         <div className="cards-container">
-          <PlaceholderComponent label="Action Card (Edit Profile)" width="350px" height="180px" />
-          <PlaceholderComponent label="Action Card (Find Group)" width="350px" height="180px" />
-          <PlaceholderComponent label="Action Card (Create Group)" width="350px" height="180px" />
+          <ActionCard
+            actionLabel="Edit Profile"
+            iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/edit--v1.png"
+            onAction={() => window.alert("Edit Profile isn't implemented yet.")}
+          />
+          <ActionCard
+            actionLabel="Find Group"
+            iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/search--v1.png"
+            onAction={() => window.alert("Find Group isn't implemented yet.")}
+          />
+          <ActionCard
+            actionLabel="Create Group"
+            iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/plus-math.png"
+            onAction={() => window.alert("Create Group isn't implemented yet.")}
+          />
         </div>
       </main>
 

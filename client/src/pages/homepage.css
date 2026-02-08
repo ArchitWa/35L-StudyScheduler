@@ -175,14 +175,3 @@
   border-top: 1px solid #e0e0e0;
 }
 
-/* Placeholder Component Styles */
-.placeholder-component {
-  border: 3px dashed #b0c4de;
-  background-color: #eaf0f6;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #5a7a9e;
-  font-weight: bold;
-  border-radius: 8px;
-}
