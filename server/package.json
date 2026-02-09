@@ -1,16 +1,18 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "server.js",
+  "type": "module",
+  "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./server.js"
+    "dev": "nodemon ./src/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@supabase/supabase-js": "^2.95.3",
     "cors": "^2.8.6",
     "dotenv": "^17.2.4",
     "express": "^5.2.1",
