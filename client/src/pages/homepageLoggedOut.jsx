@@ -8,11 +8,8 @@ const HomepageLoggedOut = ({ onToggleLogin }) => {
       {/* Header Section (Blue) */}
       <header className="header-section">
         <nav className="nav-bar">
-          <div className="brand-title">Study Group Finder</div>
+          <div className="brand-title">StudyScheduler</div>
           <div className="nav-links">
-            <a href="#" className="nav-link active">Home</a>
-            <a href="#" className="nav-link">My Profile & Schedule</a>
-            <a href="#" className="nav-link">Find Groups</a>
             <button type="button" className="user-toggle" onClick={onToggleLogin}>
               <span className="user-label">Log In</span>
               <div className="user-icon"></div>
