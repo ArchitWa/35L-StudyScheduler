@@ -2,6 +2,7 @@ import React from 'react';
 import './homepageLoggedIn.css';
 import PartnerCard from '../components/partnercard.jsx';
 import ActionCard from '../components/actioncard.jsx';
+import Navbar from '../components/navbar.jsx';
 
 // --- Logged-in Homepage Component ---
 const HomepageLoggedIn = ({ onToggleLogin }) => {
@@ -9,18 +10,7 @@ const HomepageLoggedIn = ({ onToggleLogin }) => {
     <div className="homepage-container">
       {/* Header Section (Blue) */}
       <header className="header-section">
-        <nav className="nav-bar">
-          <div className="brand-title">StudyScheduler</div>
-          <div className="nav-links">
-            <a href="#" className="nav-link active">Home</a>
-            <a href="#" className="nav-link">My Profile & Schedule</a>
-            <a href="#" className="nav-link">Find Groups</a>
-            <button type="button" className="user-toggle" onClick={onToggleLogin}>
-              <span className="user-name">[User Name]</span>
-              <div className="user-icon"></div>
-            </button>
-          </div>
-        </nav>
+        <Navbar onToggleLogin={onToggleLogin} />
 
         <div className="hero-content">
           <h1 className="hero-title">Welcome, [User Name]!</h1>

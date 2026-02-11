@@ -1,15 +1,17 @@
 import { useState } from 'react'
 //import reactLogo from './assets/react.svg' // used for the default starter code
 //import viteLogo from '/vite.svg' // used for the default starter code
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Homepage from './pages/homepage.jsx'
 import './App.css'
 
 function App() {
   return (
-    <div className="App">
-      {/* Render the Homepage component */}
-      <Homepage />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+      </Routes>
+    </Router>
   );
 }
 
