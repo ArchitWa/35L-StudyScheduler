@@ -1,4 +1,5 @@
 import Navbar from "../components/navbar.jsx";
+import { Link } from "react-router-dom";
 
 // --- BEGIN PLACEHOLDER ---
 const placeholderClasses = [
@@ -109,9 +110,9 @@ export default function ProfileViewer() {
                                     <p className="text-sm text-gray-500">{user.location}</p>
                                 </div>
 
-                                <button className="px-4 py-2 text-sm bg-indigo-50 text-indigo-700 rounded">
+                                <Link to="/profile_edit" className="px-4 py-2 text-sm bg-indigo-50 text-indigo-700 rounded">
                                     Edit Profile
-                                </button>
+                                </Link>
                             </div>
 
                             <p className="mt-4 text-gray-700">{user.bio}</p>

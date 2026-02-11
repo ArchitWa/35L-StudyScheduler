@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Homepage from './pages/homepage.jsx'
 import ProfileViewer from './pages/profileViewer.jsx'
+import ProfileEditor from './pages/profileEditor.jsx'
 import './App.css'
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/profile" element={<ProfileViewer />} />
+        <Route path="/profile_edit" element={<ProfileEditor />} />
       </Routes>
     </Router>
   );
