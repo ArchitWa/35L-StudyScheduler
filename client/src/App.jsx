@@ -1,8 +1,9 @@
-import { useState } from 'react'
-//import reactLogo from './assets/react.svg' // used for the default starter code
-//import viteLogo from '/vite.svg' // used for the default starter code
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext.jsx'
 import Homepage from './pages/homepage.jsx'
+import Login from './pages/Login.jsx'
+import SignUp from './pages/SignUp.jsx'
+import AuthCallback from './pages/AuthCallback.jsx'
 import ProfileViewer from './pages/profileViewer.jsx'
 import ProfileEditor from './pages/profileEditor.jsx'
 import './App.css'
@@ -10,11 +11,16 @@ import './App.css'
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Homepage />} />
-        <Route path="/profile" element={<ProfileViewer />} />
-        <Route path="/profile_edit" element={<ProfileEditor />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Homepage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/profile" element={<ProfileViewer />} />
+          <Route path="/profile_edit" element={<ProfileEditor />} />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }
