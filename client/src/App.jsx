@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Homepage from './pages/homepage.jsx'
 import ProfileViewer from './pages/profileViewer.jsx'
 import ProfileEditor from './pages/profileEditor.jsx'
+import GroupList from "./pages/studyGroupList.jsx"
 import './App.css'
 
 function App() {
@@ -14,12 +15,13 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/profile" element={<ProfileViewer />} />
         <Route path="/profile_edit" element={<ProfileEditor />} />
+        <Route path="/groups" element={<GroupList />} />
       </Routes>
     </Router>
   );
 }
 
-export default App
+export default App;
 /*
 function App() {
   const [count, setCount] = useState(0)
