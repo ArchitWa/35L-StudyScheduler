@@ -33,7 +33,7 @@ export default function SignUp() {
   return (
     <div className={pageLayout}>
       <header className="w-full py-5 px-10 text-left">
-        <Link to="/" className="text-white text-xl font-semibold no-underline hover:underline">
+        <Link to="/" className="brand-title text-white no-underline hover:underline">
           StudyScheduler
         </Link>
       </header>
