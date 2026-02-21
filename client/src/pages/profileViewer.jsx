@@ -1,32 +1,8 @@
 import Navbar from "../components/navbar.jsx";
 import { Link } from "react-router-dom";
+import { placeholderClasses, placeholderGroups, placeholderSchedules } from "./placeholders.jsx";
 
 // --- BEGIN PLACEHOLDER ---
-const placeholderClasses = [
-    { id: 1, title: "COM SCI 35L" },
-    { id: 2, title: "MATH 61" },
-    { id: 3, title: "PHYSICS 1A" },
-    { id: 4, title: "PHYSICS 1B" },
-    { id: 5, title: "PHYSICS 1C" },
-    { id: 6, title: "COM SCI 180" },
-    { id: 7, title: "EC ENGR 100" },
-    { id: 8, title: "EC ENGR C147" },
-];
-
-const placeholderGroups = [
-    { id: 1, title: "CS 61A Study Group" },
-    { id: 2, title: "Algorithms Review" },
-    { id: 3, title: "Project Pairing" },
-];
-
-const placeholderSchedules = [
-    { id: 1, group_id: 1, day: 1, start_time: "18:00:00", end_time: "20:00:00" },
-    { id: 2, group_id: 1, day: 3, start_time: "18:00:00", end_time: "20:00:00" },
-    { id: 3, group_id: 2, day: 2, start_time: "15:00:00", end_time: "16:00:00" },
-    { id: 4, group_id: 3, day: 1, start_time: "18:00:00", end_time: "20:00:00" },
-    { id: 5, group_id: 3, day: 1, start_time: "15:00:00", end_time: "16:00:00" },
-]
-
 
 function getClassById(id) {
     return placeholderClasses.find(c => c.id === id);
@@ -145,9 +121,9 @@ export default function ProfileViewer() {
                         <p className="text-sm text-gray-500 mt-1">Groups this user is participating in.</p>
 
                         <ul className="mt-4 space-y-3">
-                            {userGroups.map((g) => (
-                                <StudyGroupComponent key={g.id} group={g} />
-                            ))}
+                            {
+                                userGroups.map((g) => g ?
+                                    <StudyGroupComponent key={g.id} group={g} /> : null)}
                         </ul>
                     </div>
 

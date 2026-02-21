@@ -1,19 +1,18 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './homepageLoggedOut.css';
 
-// --- Logged-out Homepage Component ---
-const HomepageLoggedOut = ({ onToggleLogin }) => {
+const HomepageLoggedOut = () => {
   return (
     <div className="homepage-container">
-      {/* Header Section (Blue) */}
       <header className="header-section">
         <nav className="nav-bar">
           <div className="brand-title">StudyScheduler</div>
           <div className="nav-links">
-            <button type="button" className="user-toggle" onClick={onToggleLogin}>
+            <Link to="/login" className="user-toggle" style={{ textDecoration: 'none' }}>
               <span className="user-label">Log In</span>
               <div className="user-icon"></div>
-            </button>
+            </Link>
           </div>
         </nav>
 
