@@ -93,7 +93,7 @@ export default function ProfileEditor() {
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Your name"
                                 required
                             />
@@ -110,7 +110,7 @@ export default function ProfileEditor() {
                                 name="major"
                                 value={formData.major}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Your major"
                                 required
                             />
@@ -126,7 +126,7 @@ export default function ProfileEditor() {
                                 name="year"
                                 value={formData.year}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 required
                             >
                                 <option value="">Select your year</option>
@@ -148,7 +148,7 @@ export default function ProfileEditor() {
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="(555) 123-4567"
                             />
                         </div>
@@ -164,7 +164,7 @@ export default function ProfileEditor() {
                                 value={formData.bio}
                                 onChange={handleChange}
                                 rows="4"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Tell us about yourself..."
                             />
                         </div>
@@ -182,7 +182,7 @@ export default function ProfileEditor() {
                                         value={newClass}
                                         onChange={(e) => setNewClass(e.target.value)}
                                         onKeyPress={handleAddClassKeyPress}
-                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="flex-1 px-4 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="Enter a class (e.g., CS 35L)"
                                     />
                                     <button
