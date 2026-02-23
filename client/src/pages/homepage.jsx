@@ -2,18 +2,21 @@ import { useState } from 'react';
 import HomepageLoggedIn from './homepageLoggedIn.jsx';
 import HomepageLoggedOut from './homepageLoggedOut.jsx';
 
-// --- Main Homepage Component (switcher) ---
 const Homepage = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, loading, logout } = useAuth();
 
-  const handleToggleLogin = () => {
-    setIsLoggedIn((prev) => !prev);
-  };
+  if (loading) {
+    return (
+      <div className="homepage-container" style={{ justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <p>Loading…</p>
+      </div>
+    );
+  }
 
   return isLoggedIn ? (
-    <HomepageLoggedIn onToggleLogin={handleToggleLogin} />
+    <HomepageLoggedIn onToggleLogin={logout} />
   ) : (
-    <HomepageLoggedOut onToggleLogin={handleToggleLogin} />
+    <HomepageLoggedOut />
   );
 };
 
