@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import HomepageLoggedIn from './homepageLoggedIn.jsx';
 import HomepageLoggedOut from './homepageLoggedOut.jsx';
 
