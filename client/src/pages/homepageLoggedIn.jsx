@@ -1,33 +1,21 @@
 import PartnerCard from '../components/partnercard.jsx';
 import ActionCard from '../components/actioncard.jsx';
+import Navbar from "../components/navbar.jsx"
 
 // --- Logged-in Homepage Component ---
 const HomepageLoggedIn = ({ onToggleLogin }) => {
   return (
     <div className="font-sans min-h-screen flex flex-col">
       {/* Header Section (Blue) */}
-      <header className="bg-gradient-to-br from-[#1a4a8f] to-[#2d6cb5] text-white pb-[30px]">
-        <nav className="flex justify-between items-center px-10 py-5">
-          <div className="text-xl font-semibold">StudyScheduler</div>
-          <div className="flex items-center gap-[30px]">
-            <a href="#" className="!text-white border-b-2 border-white pb-1 opacity-100">Home</a>
-            <a href="#" className="!text-white text-base font-medium no-underline cursor-pointer transition-opacity hover:opacity-80">My Profile & Schedule</a>
-            <a href="#" className="!text-white text-base font-medium no-underline cursor-pointer transition-opacity hover:opacity-80">Find Groups</a>
-            <button type="button" className="user-toggle" onClick={onToggleLogin}>
-              <span className="!text-white font-medium user-name">[User Name]</span>
-              <div className="user-icon"></div>
-            </button>
-          </div>
-        </nav>
+      <Navbar onToggleLogin={onToggleLogin} />
 
-        <div className="text-center py-10">
-          <h1 className="text-3xl font-bold mb-4">Welcome, [User Name]!</h1>
-        </div>
-      </header>
 
       {/* Main Content Section (White/Gray) */}
       <main className="bg-[#f4f6f8] flex-grow p-10 flex flex-col items-center">
-        
+        <div className="text-center py-10">
+          <h1 className="text-3xl font-bold mb-4">Welcome, [User Name]!</h1>
+        </div>
+
         {/* Section 1: Recommended Partners */}
         <h2 className="text-2xl font-bold text-[#333] mb-8">Recommended Study Partners</h2>
         <div className="flex justify-center gap-5 w-full max-w-4xl mb-12 overflow-x-auto">
