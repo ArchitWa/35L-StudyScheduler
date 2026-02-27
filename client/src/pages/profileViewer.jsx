@@ -42,7 +42,7 @@ function StudyGroupComponent({ group }) {
                 <p className="font-medium text-gray-800">{group.title}</p>
                 <p className="text-sm text-gray-500">{scheduleStr}</p>
             </div>
-            <button className="px-3 py-1 text-sm bg-indigo-500 text-indigo-700 rounded">View</button>
+            <button className=" bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm  text-indigo-700 rounded font-medium">View</button>
         </li>
     );
 }
@@ -86,7 +86,7 @@ export default function ProfileViewer() {
                                     <p className="text-sm text-gray-500">{user.location}</p>
                                 </div>
 
-                                <Link to="/profile_edit" className="px-4 py-2 text-sm bg-indigo-50 text-indigo-700 rounded">
+                                <Link to="/profile_edit" className="px-4 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700! rounded">
                                     Edit Profile
                                 </Link>
                             </div>
@@ -105,7 +105,7 @@ export default function ProfileViewer() {
                                 <div className="font-bold text-gray-800">Classes</div>
                                 <div className="mt-2">
                                     {userClasses.map(c => (
-                                        <span key={c.id} className="inline-block mr-2 mb-2 px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs">
+                                        <span key={c.id} className="inline-block mr-2 mb-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
                                             {c.title}
                                         </span>
                                     ))}
