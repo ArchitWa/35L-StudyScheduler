@@ -188,7 +188,7 @@ export default function ProfileEditor() {
                                     <button
                                         type="button"
                                         onClick={handleAddClass}
-                                        className="px-4 py-2 bg-green-600 text-indigo-800 rounded-lg hover:bg-green-700 transition duration-200 font-medium"
+                                        className="bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm  text-indigo-700 rounded font-medium"
                                     >
                                         Add
                                     </button>
@@ -206,7 +206,7 @@ export default function ProfileEditor() {
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveClass(index)}
-                                                    className="px-3 py-1 bg-red-600 text-indigo-800 rounded hover:bg-red-700 transition duration-200 text-sm font-medium"
+                                                    className="bg-red-50 hover:bg-red-100 cursor-pointer px-3 py-1 text-sm  text-red-700 rounded font-medium"
                                                 >
                                                     Remove
                                                 </button>
