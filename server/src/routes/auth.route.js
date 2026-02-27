@@ -27,12 +27,32 @@ router.get("/login", (req, res) => {
 // Current authenticated user (and optional profile)
 router.get("/me", requireUser, async (req, res) => {
   const user = req.user; // from requireUser
-  // Optionally load profile from public.users
-  const { data: profile } = await supabase
+
+  // Try to load profile from public.users
+  let { data: profile, error: profileError } = await supabase
     .from("users")
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
+
+  // Auto-create a profile row on first sign-in if none exists
+  if (!profile && !profileError) {
+    try {
+      const { error: insertError } = await supabase
+        .from("users")
+        .insert({ id: user.id });
+      if (!insertError) {
+        const result = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
+        profile = result.data || null;
+      }
+    } catch (_) {
+      // swallow insert errors; we still return the auth user
+    }
+  }
 
   return res.json({ user: { id: user.id, email: user.email }, profile: profile || null });
 });
@@ -43,4 +63,3 @@ router.post("/logout", (_req, res) => {
 });
 
 export default router;
-
