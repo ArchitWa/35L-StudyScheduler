@@ -25,7 +25,7 @@ const GroupCard = ({ group }) => {
             {/* Title + View Button */}
             <div className="flex items-start justify-between gap-4 mb-2">
                 <h3 className="text-lg font-semibold text-gray-900">{group.title}</h3>
-                <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-indigo-700 text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
+                <button className="bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm  text-indigo-700 rounded font-medium">
                     View Group
                 </button>
             </div>
@@ -70,7 +70,7 @@ const GroupCard = ({ group }) => {
                         group.class_ids.map((classId) => (
                             <span
                                 key={classId}
-                                className="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded text-xs font-medium"
+                                className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
                             >
                                 {getClassTitle(classId)}
                             </span>

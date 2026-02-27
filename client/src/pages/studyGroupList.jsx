@@ -37,7 +37,7 @@ export default function GroupList() {
                     <div className="flex justify-center">
                         <button
                             onClick={handleLoadMore}
-                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-indigo-700 font-medium rounded-lg transition-colors"
+                            className="bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm  text-indigo-700 rounded font-medium"
                         >
                             Load More
                         </button>
