@@ -69,7 +69,7 @@ export default function ProfileViewer() {
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="header-section">
-                <Navbar onToggleLogin={true} />
+                <Navbar />
             </header>
 
             <main className="max-w-4xl mx-auto p-6">

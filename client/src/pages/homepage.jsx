@@ -1,20 +1,12 @@
-import { useState } from 'react';
+import { useAuth } from '../context/AuthContext.jsx';
 import HomepageLoggedIn from './homepageLoggedIn.jsx';
 import HomepageLoggedOut from './homepageLoggedOut.jsx';
 
 // --- Main Homepage Component (switcher) ---
 const Homepage = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn } = useAuth();
 
-  const handleToggleLogin = () => {
-    setIsLoggedIn((prev) => !prev);
-  };
-
-  return isLoggedIn ? (
-    <HomepageLoggedIn onToggleLogin={handleToggleLogin} />
-  ) : (
-    <HomepageLoggedOut onToggleLogin={handleToggleLogin} />
-  );
+  return isLoggedIn ? <HomepageLoggedIn /> : <HomepageLoggedOut />;
 };
 
 export default Homepage;

@@ -3,11 +3,11 @@ import ActionCard from '../components/actioncard.jsx';
 import Navbar from "../components/navbar.jsx"
 
 // --- Logged-in Homepage Component ---
-const HomepageLoggedIn = ({ onToggleLogin }) => {
+const HomepageLoggedIn = () => {
   return (
     <div className="font-sans min-h-screen flex flex-col">
       {/* Header Section (Blue) */}
-      <Navbar onToggleLogin={onToggleLogin} />
+      <Navbar />
 
 
       {/* Main Content Section (White/Gray) */}

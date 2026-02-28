@@ -7,6 +7,8 @@ import AuthCallback from './pages/AuthCallback.jsx'
 import ProfileViewer from './pages/profileViewer.jsx'
 import ProfileEditor from './pages/profileEditor.jsx'
 import GroupList from "./pages/studyGroupList.jsx"
+import Login from "./pages/Login.jsx"
+import SignUp from "./pages/SignUp.jsx"
 import './App.css'
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
         <Route path="/profile" element={<ProfileViewer />} />
         <Route path="/profile_edit" element={<ProfileEditor />} />
         <Route path="/groups" element={<GroupList />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
       </Routes>
     </Router>
   );

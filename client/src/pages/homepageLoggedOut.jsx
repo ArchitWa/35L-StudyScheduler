@@ -1,5 +1,5 @@
 // --- Logged-out Homepage Component ---
-const HomepageLoggedOut = ({ onToggleLogin }) => {
+const HomepageLoggedOut = () => {
   return (
     <div className="font-sans min-h-screen flex flex-col">
       {/* Header Section (Blue) */}
@@ -7,10 +7,9 @@ const HomepageLoggedOut = ({ onToggleLogin }) => {
         <nav className="flex justify-between items-center px-10 py-5">
           <div className="text-xl font-semibold">StudyScheduler</div>
           <div className="flex items-center gap-[30px]">
-            <button type="button" onClick={onToggleLogin} 
-            className="!bg-transparent border border-white text-white text-[0.9rem] font-semibold px-6 py-2 rounded cursor-pointer hover:bg-white/10 transition-colors">
-            Log In
-            </button>
+            <a href="/login" className="!bg-transparent border border-white !text-white text-base font-bold px-6 py-2 rounded cursor-pointer hover:bg-white/10 transition-colors">
+              Log In
+            </a>
           </div>
         </nav>
 
