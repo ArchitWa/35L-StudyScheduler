@@ -1,9 +1,12 @@
 import PartnerCard from '../components/partnercard.jsx';
 import ActionCard from '../components/actioncard.jsx';
+import { useNavigate } from 'react-router-dom';
 import Navbar from "../components/navbar.jsx"
 
 // --- Logged-in Homepage Component ---
 const HomepageLoggedIn = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="font-sans min-h-screen flex flex-col">
       {/* Header Section (Blue) */}
@@ -50,12 +53,12 @@ const HomepageLoggedIn = () => {
           <ActionCard
             actionLabel="Find Group"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/search--v1.png"
-            onAction={() => window.alert("Find Group isn't implemented yet.")}
+            onAction={() => navigate('/groups')}
           />
           <ActionCard
             actionLabel="Create Group"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/plus-math.png"
-            onAction={() => window.alert("Create Group isn't implemented yet.")}
+            onAction={() => navigate('/groups/create')}
           />
         </div>
       </main>

@@ -49,7 +49,7 @@ export default function Login() {
           className={`${btnBase} ${btnGoogle}`}
           onClick={loginWithGoogle}
         >
-          Sign in with Google (UCLA)
+          Log in with Google (UCLA)
         </button>
 
         <p className={footerText}>
