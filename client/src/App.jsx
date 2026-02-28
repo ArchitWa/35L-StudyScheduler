@@ -7,6 +7,8 @@ import AuthCallback from './pages/AuthCallback.jsx'
 import ProfileViewer from './pages/profileViewer.jsx'
 import ProfileEditor from './pages/profileEditor.jsx'
 import GroupList from "./pages/studyGroupList.jsx"
+import CreateGroupTest from './pages/testGroupPage.jsx'
+import TestLogin from './pages/testLoginPage.jsx'
 import './App.css'
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
         <Route path="/profile" element={<ProfileViewer />} />
         <Route path="/profile_edit" element={<ProfileEditor />} />
         <Route path="/groups" element={<GroupList />} />
+        <Route path="/test_group" element={<CreateGroupTest />} />
+        <Route path="/test_login" element={<TestLogin />} />
       </Routes>
     </Router>
   );

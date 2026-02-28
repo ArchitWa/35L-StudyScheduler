@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
+import groupRoutes from "./routes/groups.route.js";
+import memreqsRoutes from "./routes/memreqs.route.js";
 
 const app = express();
 dotenv.config();
@@ -23,6 +25,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/study-groups", groupRoutes);
+app.use("/api/membership-requests", memreqsRoutes);
 
 const PORT = process.env.PORT || 3000;
 
