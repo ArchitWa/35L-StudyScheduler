@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/navbar.jsx";
 
 export default function ProfileEditor() {
@@ -16,6 +16,32 @@ export default function ProfileEditor() {
             3
         ]
     };
+
+    // console log the initial user data to verify it's being loaded correctly
+    useEffect(() => {
+        async function fetchUser() {
+            try {
+                const token = localStorage.getItem("auth_token");
+
+                const res = await fetch(
+                    "http://localhost:3000/api/auth/debug-user",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const data = await res.json();
+
+                console.log("USER TABLE DATA:", data);
+            } catch (err) {
+                console.error("Failed to fetch user:", err);
+            }
+        }
+
+        fetchUser();
+    }, []);
 
     const [formData, setFormData] = useState({
         name: initialUser.name,
