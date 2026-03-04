@@ -24,7 +24,7 @@ const Navbar = () => {
                         <button
                             type="button"
                             onClick={logout}
-                            className="!bg-transparent border border-white text-white text-[0.9rem] font-semibold px-4 py-2 rounded cursor-pointer hover:bg-white/10 transition-colors"
+                            className="bg-transparent! border border-white text-white text-[0.9rem] font-semibold px-4 py-2 rounded cursor-pointer hover:bg-white/10 transition-colors"
                         >
                             Log&nbsp;out
                         </button>
