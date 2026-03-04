@@ -74,7 +74,7 @@ export default function ProfileEditor() {
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="header-section">
-                <Navbar onToggleLogin={true} />
+                <Navbar />
             </header>
 
             <main className="max-w-2xl mx-auto p-6">
