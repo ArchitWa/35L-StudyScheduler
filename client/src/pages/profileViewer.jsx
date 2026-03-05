@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { API_BASE, authHeaders } from "../lib/api.js";
 import { formatTime } from "../lib/helpers.js";
-import { CreateGroupModal, GroupModal } from "../components";
+import { CreateGroupModal, GroupModal, ProfileEditorModal } from "../components";
 import { useAuth } from "../context/AuthContext.jsx";
+import ClassPill from "../components/ClassPill.jsx";
 
 
 function StudyGroupComponent({ group, currentUserId, onView }) {
@@ -41,6 +42,7 @@ export default function ProfileViewer() {
     const [error, setError] = useState("");
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+    const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
 
 
     useEffect(() => {
@@ -113,7 +115,7 @@ export default function ProfileViewer() {
         phone: profile.phone_number || "No Phone Number",
         email: profile.email || "No Email",
         bio: profile.bio || "No Bio",
-        classes: profile.classes_taking || "No Classes",
+        classes: Array.isArray(profile.classes_taking) ? profile.classes_taking : [],
     };
 
     const userClasses = user.classes;
@@ -134,6 +136,12 @@ export default function ProfileViewer() {
     const handleCreateGroup = (createdGroup) => {
         if (!createdGroup) return;
         setGroups(prev => [createdGroup, ...prev]);
+    };
+
+    const handleProfileUpdated = (updatedProfile) => {
+        // The profile will be updated via the AuthContext fetchUser
+        // but we can also update it locally if needed
+        console.log("Profile updated:", updatedProfile);
     };
 
     return (
@@ -157,6 +165,21 @@ export default function ProfileViewer() {
                 />
             )}
 
+            {isProfileEditorOpen && (
+                <ProfileEditorModal
+                    onClose={() => setIsProfileEditorOpen(false)}
+                    onUpdated={handleProfileUpdated}
+                    initialProfile={{
+                        name: profile.name,
+                        major: profile.major,
+                        year: profile.year,
+                        phone: profile.phone_number,
+                        bio: profile.bio,
+                        classes: profile.classes_taking || []
+                    }}
+                />
+            )}
+
             <main className="max-w-4xl mx-auto p-6">
                 <section className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center gap-6">
@@ -171,9 +194,12 @@ export default function ProfileViewer() {
                                     <p className="text-sm text-gray-500">{user.location}</p>
                                 </div>
 
-                                <Link to="/profile_edit" className="px-4 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700! rounded">
+                                <button
+                                    onClick={() => setIsProfileEditorOpen(true)}
+                                    className="px-4 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded cursor-pointer"
+                                >
                                     Edit Profile
-                                </Link>
+                                </button>
                             </div>
 
                             <p className="mt-4 text-gray-700">{user.bio}</p>
@@ -188,13 +214,11 @@ export default function ProfileViewer() {
 
                             <div className="mt-4">
                                 <div className="font-bold text-gray-800">Classes</div>
-                                <div className="mt-2">
+                                <div className="mt-2 flex flex-wrap gap-2">
                                     {userClasses.length === 0 ?
                                         <div className="text-gray-500 text-sm"> No Classes Found </div>
                                         : userClasses.map((c, i) => (
-                                            <span key={i} className="inline-block mr-2 mb-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
-                                                {c}
-                                            </span>
+                                            <ClassPill key={i} value={c} />
                                         ))}
                                 </div>
                             </div>
