@@ -1,40 +1,13 @@
 import Navbar from "../components/navbar.jsx";
 import { Link } from "react-router-dom";
-import { placeholderClasses, placeholderGroups, placeholderSchedules } from "./placeholders.jsx";
 import { useEffect, useState } from "react";
 import { API_BASE, authHeaders } from "../lib/api.js";
 import { formatTime } from "../lib/helpers.js";
-import { CreateGroupModal, EditGroupModal, GroupModal } from "../components";
+import { ProfileEditorModal } from "../components";
+import { GroupModal, CreateGroupModal, EditGroupModal } from "../components/";
+import { useAuth } from "../context/AuthContext.jsx";
+import ClassPill from "../components/ClassPill.jsx";
 
-// --- BEGIN PLACEHOLDER ---
-
-function getClassById(id) {
-    return placeholderClasses.find(c => c.id === id);
-}
-
-function getGroupById(id) {
-    return placeholderGroups.find(g => g.id === id);
-}
-
-function getSchedulesForGroup(groupId) {
-    return placeholderSchedules.filter(s => s.group_id === groupId);
-}
-// --- END PLACEHOLDER ---
-
-
-const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-function getScheduleString(s) {
-    const formatTime = (timeStr) => {
-        const [hour, minute] = timeStr.split(':').map(Number);
-        const date = new Date();
-        date.setHours(parseInt(hour), parseInt(minute));
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    const day = DAYS_OF_WEEK[s.day];
-    return `${day} ${formatTime(s.start_time)}-${formatTime(s.end_time)}`;
-}
 
 function StudyGroupComponent({ group, currentUserId, onView, onEdit }) {
     return (
@@ -65,57 +38,18 @@ function StudyGroupComponent({ group, currentUserId, onView, onEdit }) {
 }
 
 export default function ProfileViewer() {
-    const user = {
-        name: "John Smith",
-        major: "Computer Science",
-        year: "Sophomore",
-        phone: "(555) 123-4567",
-        email: "jordan@example.com",
-        bio: "Passionate about collaborative studying, algorithms, and building helpful tools for classmates.",
-        classIds: [1, 2, 3],
-        groupIds: [
-            1,
-            2,
-            3
-        ]
-    };
-
-    const userGroups = user.groupIds.map(getGroupById);
-    const userClasses = user.classIds.map(getClassById);
-
+    const { isLoggedIn, loadingProfile, profile } = useAuth();
     const [groups, setGroups] = useState([]);
-    const [currentUserId, setCurrentUserId] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+    const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
     const [editingGroup, setEditingGroup] = useState(null);
 
 
     useEffect(() => {
         const controller = new AbortController();
-
-        async function getUser() {
-            try {
-                const res = await fetch(`${API_BASE}/api/auth/me`, {
-                    headers: authHeaders(),
-                    signal: controller.signal,
-                });
-
-                const data = await res.json().catch(() => ({}));
-
-                if (!res.ok) {
-                    throw new Error(data.error || "Failed to fetch user info");
-                }
-
-                setCurrentUserId(data.user?.id || null);
-            } catch (err) {
-                if (err.name === "AbortError") return;
-                console.error("Error fetching user info:", err);
-            }
-        }
-
-        getUser();
 
         async function fetchMyGroups() {
             setLoading(true);
@@ -151,6 +85,45 @@ export default function ProfileViewer() {
         return () => controller.abort();
     }, []);
 
+    if (!isLoggedIn) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <main className="rounded-lg bg-white p-8 text-center">
+                    <p className="text-gray-500 text-lg">
+                        You must be <Link to="/login" className="text-blue-500 underline">logged in</Link> to view this page.
+                    </p>
+                </main>
+            </div>
+        );
+    }
+
+
+    if (loading || loadingProfile) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <header className="header-section">
+                    <Navbar />
+                </header>
+                <main className="rounded-lg bg-white p-8 text-center">
+                    <p className="text-gray-500 text-lg">Loading your profile...</p>
+                </main>
+            </div>
+        );
+    }
+
+    const user = {
+        name: profile.name || "No Name",
+        major: profile.major || "No Major",
+        year: profile.year || "No Year",
+        phone: profile.phone_number || "No Phone Number",
+        email: profile.email || "No Email",
+        bio: profile.bio || "No Bio",
+        classes: Array.isArray(profile.classes_taking) ? profile.classes_taking : [],
+    };
+
+    const userClasses = user.classes;
+
+
     const handleRemoveGroup = (groupId) => {
         setGroups(prev => prev.filter(g => g.id !== groupId));
     };
@@ -166,6 +139,12 @@ export default function ProfileViewer() {
     const handleCreateGroup = (createdGroup) => {
         if (!createdGroup) return;
         setGroups(prev => [createdGroup, ...prev]);
+    };
+
+    const handleProfileUpdated = (updatedProfile) => {
+        // The profile will be updated via the AuthContext fetchUser
+        // but we can also update it locally if needed
+        console.log("Profile updated:", updatedProfile);
     };
 
     const handleOpenEditGroupModal = (group) => {
@@ -215,6 +194,20 @@ export default function ProfileViewer() {
                 />
             )}
 
+            {isProfileEditorOpen && (
+                <ProfileEditorModal
+                    onClose={() => setIsProfileEditorOpen(false)}
+                    onUpdated={handleProfileUpdated}
+                    initialProfile={{
+                        name: profile.name,
+                        major: profile.major,
+                        year: profile.year,
+                        phone: profile.phone_number,
+                        bio: profile.bio,
+                        classes: profile.classes_taking || []
+                    }}
+                />
+            )}
             {editingGroup && (
                 <EditGroupModal
                     group={editingGroup}
@@ -237,9 +230,12 @@ export default function ProfileViewer() {
                                     <p className="text-sm text-gray-500">{user.location}</p>
                                 </div>
 
-                                <Link to="/profile_edit" className="px-4 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700! rounded">
+                                <button
+                                    onClick={() => setIsProfileEditorOpen(true)}
+                                    className="px-4 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded cursor-pointer"
+                                >
                                     Edit Profile
-                                </Link>
+                                </button>
                             </div>
 
                             <p className="mt-4 text-gray-700">{user.bio}</p>
@@ -254,12 +250,12 @@ export default function ProfileViewer() {
 
                             <div className="mt-4">
                                 <div className="font-bold text-gray-800">Classes</div>
-                                <div className="mt-2">
-                                    {userClasses.map(c => (
-                                        <span key={c.id} className="inline-block mr-2 mb-2 px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
-                                            {c.title}
-                                        </span>
-                                    ))}
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {userClasses.length === 0 ?
+                                        <div className="text-gray-500 text-sm"> No Classes Found </div>
+                                        : userClasses.map((c, i) => (
+                                            <ClassPill key={i} value={c} />
+                                        ))}
                                 </div>
                             </div>
                         </div>
@@ -304,7 +300,7 @@ export default function ProfileViewer() {
                                     <StudyGroupComponent
                                         key={group.id}
                                         group={group}
-                                        currentUserId={currentUserId}
+                                        currentUserId={profile.id}
                                         onView={handleOpenGroupModal}
                                         onEdit={handleOpenEditGroupModal}
                                     />

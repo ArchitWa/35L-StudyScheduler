@@ -53,3 +53,44 @@ export const createUser = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      name,
+      major,
+      year,
+      phone,
+      bio,
+      classes
+    } = req.body;
+
+    // Update the user profile
+    const { data, error } = await supabase
+      .from("users")
+      .update({
+        name,
+        major,
+        year,
+        phone_number: phone,
+        bio,
+        classes_taking: classes
+      })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: data
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

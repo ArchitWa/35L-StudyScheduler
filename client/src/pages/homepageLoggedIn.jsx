@@ -1,9 +1,28 @@
+import { useState } from 'react';
 import PartnerCard from '../components/partnercard.jsx';
 import ActionCard from '../components/actioncard.jsx';
 import Navbar from "../components/navbar.jsx"
+import { ProfileCreatorModal } from '../components/index.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 // --- Logged-in Homepage Component ---
 const HomepageLoggedIn = ({ profile }) => {
+  const { fetchUser } = useAuth();
+  const [isProfileCreatorOpen, setIsProfileCreatorOpen] = useState(!profile.name);
+
+  const handleProfileCreated = async (createdProfile) => {
+    setIsProfileCreatorOpen(false);
+    await fetchUser();
+  };
+  if (isProfileCreatorOpen) {
+    return (
+      <div className="font-sans min-h-screen flex flex-col">
+        <Navbar />
+        <ProfileCreatorModal onCreated={handleProfileCreated} />
+      </div>
+    );
+  }
+
   return (
     <div className="font-sans min-h-screen flex flex-col">
       {/* Header Section (Blue) */}
