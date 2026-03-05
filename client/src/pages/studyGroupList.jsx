@@ -1,19 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/navbar.jsx";
 import GroupCard from "../components/groupcard.jsx";
-import { placeholderGroups } from "./placeholders.jsx";
+import { fetchStudyGroups } from "../lib/api.js";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function GroupList() {
+    const [groups, setGroups] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_PAGE);
+
+    useEffect(() => {
+        const loadGroups = async () => {
+            try {
+                const fetchedGroups = await fetchStudyGroups();
+                // Map backend data to frontend format
+                const mappedGroups = fetchedGroups.map(group => ({
+                    id: group.id,
+                    title: group.group_name,
+                    description: group.goals,
+                    meeting_link: group.meet_spot,
+                    schedule_ids: [{
+                        day: group.day_of_week,
+                        start_time: group.time,
+                    }],
+                    class_ids: group.classes || [],
+                }));
+                setGroups(mappedGroups);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadGroups();
+    }, []);
 
     const handleLoadMore = () => {
         setDisplayedCount(prev => prev + ITEMS_PER_PAGE);
     };
 
-    const visibleGroups = placeholderGroups.slice(0, displayedCount);
-    const hasMore = displayedCount < placeholderGroups.length;
+    const visibleGroups = groups.slice(0, displayedCount);
+    const hasMore = displayedCount < groups.length;
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <header className="header-section">
+                    <Navbar />
+                </header>
+                <main className="max-w-4xl mx-auto p-6">
+                    <div className="text-center py-12">
+                        <p className="text-gray-500 text-lg">Loading groups...</p>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <header className="header-section">
+                    <Navbar />
+                </header>
+                <main className="max-w-4xl mx-auto p-6">
+                    <div className="text-center py-12">
+                        <p className="text-red-500 text-lg">Error: {error}</p>
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">

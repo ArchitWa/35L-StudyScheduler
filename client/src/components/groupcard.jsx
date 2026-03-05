@@ -1,22 +1,14 @@
-import { placeholderClasses } from '../pages/placeholders.jsx';
-
-const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+import ClassPill from './ClassPill.jsx';
 
 function formatTime(timeStr) {
     const [hour, minute] = timeStr.split(':').map(Number);
     const date = new Date();
     date.setHours(parseInt(hour), parseInt(minute));
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 }
 
 function getScheduleString(scheduleItem) {
-    const day = DAYS_OF_WEEK[scheduleItem.day];
-    return `${day} ${formatTime(scheduleItem.start_time)}-${formatTime(scheduleItem.end_time)}`;
-}
-
-function getClassTitle(classId) {
-    const classObj = placeholderClasses.find(c => c.id === classId);
-    return classObj ? classObj.title : `Class ${classId}`;
+    return `${scheduleItem.day} ${formatTime(scheduleItem.start_time)}`;
 }
 
 const GroupCard = ({ group }) => {
@@ -67,13 +59,8 @@ const GroupCard = ({ group }) => {
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Classes</p>
                 <div className="flex flex-wrap gap-2">
                     {group.class_ids && group.class_ids.length > 0 ? (
-                        group.class_ids.map((classId) => (
-                            <span
-                                key={classId}
-                                className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
-                            >
-                                {getClassTitle(classId)}
-                            </span>
+                        group.class_ids.map((className, idx) => (
+                            <ClassPill key={idx} value={className} />
                         ))
                     ) : (
                         <p className="text-sm text-gray-500">No classes listed</p>
