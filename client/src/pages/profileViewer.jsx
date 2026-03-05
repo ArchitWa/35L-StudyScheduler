@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { API_BASE, authHeaders } from "../lib/api.js";
 import { formatTime } from "../lib/helpers.js";
-import { CreateGroupModal, GroupModal, ProfileEditorModal } from "../components";
+import { ProfileEditorModal } from "../components";
+import { GroupModal, CreateGroupModal, EditGroupModal } from "../components/";
 import { useAuth } from "../context/AuthContext.jsx";
 import ClassPill from "../components/ClassPill.jsx";
 
 
-function StudyGroupComponent({ group, currentUserId, onView }) {
+function StudyGroupComponent({ group, currentUserId, onView, onEdit }) {
     return (
         <li className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
@@ -25,8 +26,9 @@ function StudyGroupComponent({ group, currentUserId, onView }) {
                 </button>
                 <button
                     type="button"
-                    disabled={currentUserId !== group.owner_id}
-                    className="bg-amber-50 hover:bg-amber-100 cursor-pointer px-3 py-1 text-sm text-amber-700 rounded font-medium"
+                    onClick={() => onEdit?.(group)}
+                    disabled={currentUserId !== group.group_owner}
+                    className="bg-amber-50 hover:bg-amber-100 cursor-pointer px-3 py-1 text-sm text-amber-700 rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Edit
                 </button>
@@ -43,6 +45,7 @@ export default function ProfileViewer() {
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
+    const [editingGroup, setEditingGroup] = useState(null);
 
 
     useEffect(() => {
@@ -144,6 +147,32 @@ export default function ProfileViewer() {
         console.log("Profile updated:", updatedProfile);
     };
 
+    const handleOpenEditGroupModal = (group) => {
+        setEditingGroup(group);
+    };
+
+    const handleCloseEditGroupModal = () => {
+        setEditingGroup(null);
+    };
+
+    const handleUpdateGroup = (updatedGroup) => {
+        if (!updatedGroup?.id) return;
+
+        setGroups(prev => prev.map(group => {
+            if (group.id !== updatedGroup.id) return group;
+            return {
+                ...group,
+                ...updatedGroup,
+                users: group.users || updatedGroup.users || []
+            };
+        }));
+
+        setSelectedGroup(prev => {
+            if (!prev || prev.id !== updatedGroup.id) return prev;
+            return { ...prev, ...updatedGroup };
+        });
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="header-section">
@@ -177,6 +206,13 @@ export default function ProfileViewer() {
                         bio: profile.bio,
                         classes: profile.classes_taking || []
                     }}
+                />
+            )}
+            {editingGroup && (
+                <EditGroupModal
+                    group={editingGroup}
+                    onClose={handleCloseEditGroupModal}
+                    onUpdated={handleUpdateGroup}
                 />
             )}
 
@@ -266,6 +302,7 @@ export default function ProfileViewer() {
                                         group={group}
                                         currentUserId={profile.id}
                                         onView={handleOpenGroupModal}
+                                        onEdit={handleOpenEditGroupModal}
                                     />
                                 ))}
                             </ul>
