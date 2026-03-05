@@ -5,9 +5,9 @@ import singleGroupPage from './singleGroupPage.jsx';
 
 // --- Main Homepage Component (switcher) ---
 const Homepage = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, profile } = useAuth();
 
-  return isLoggedIn ? <HomepageLoggedIn /> : <HomepageLoggedOut />;
+  return isLoggedIn ? <HomepageLoggedIn profile={profile} /> : <HomepageLoggedOut />;
 };
 
 export default Homepage;

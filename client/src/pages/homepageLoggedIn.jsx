@@ -3,17 +3,16 @@ import ActionCard from '../components/actioncard.jsx';
 import Navbar from "../components/navbar.jsx"
 
 // --- Logged-in Homepage Component ---
-const HomepageLoggedIn = () => {
+const HomepageLoggedIn = ({ profile }) => {
   return (
     <div className="font-sans min-h-screen flex flex-col">
       {/* Header Section (Blue) */}
       <Navbar />
 
-
       {/* Main Content Section (White/Gray) */}
-      <main className="bg-[#f4f6f8] flex-grow p-10 flex flex-col items-center">
+      <main className="bg-[#f4f6f8] grow p-10 flex flex-col items-center">
         <div className="text-center py-10">
-          <h1 className="text-3xl font-bold mb-4">Welcome, [User Name]!</h1>
+          <h1 className="text-3xl text-gray-700 font-bold mb-4">Welcome, {profile?.name}!</h1>
         </div>
 
         {/* Section 1: Recommended Partners */}
@@ -45,17 +44,17 @@ const HomepageLoggedIn = () => {
           <ActionCard
             actionLabel="Edit Profile"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/edit--v1.png"
-            onAction={() => window.alert("Edit Profile isn't implemented yet.")}
+            url="/profile_edit"
           />
           <ActionCard
             actionLabel="Find Group"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/search--v1.png"
-            onAction={() => window.alert("Find Group isn't implemented yet.")}
+            url="/groups"
           />
           <ActionCard
             actionLabel="Create Group"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/plus-math.png"
-            onAction={() => window.alert("Create Group isn't implemented yet.")}
+            url="/group_create"
           />
         </div>
       </main>
