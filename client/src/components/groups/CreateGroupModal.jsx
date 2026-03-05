@@ -1,8 +1,11 @@
-import { useState } from "react";
-import classes from "../lib/classes.json";
-import ClassPill from "./ClassPill";
+import { useEffect, useRef, useState } from "react";
+import classes from "../../lib/classes.json";
+import ClassPill from "../ClassPill";
 
 const API = "http://localhost:3000/api/study-groups";
+const MODAL_ANIMATION_MS = 200;
+const ERROR_VISIBLE_MS = 3000;
+const ERROR_FADE_MS = 300;
 
 const DAYS = [
     "Monday",
@@ -44,19 +47,85 @@ export default function CreateGroupModal({ onClose, onCreated }) {
         group_name: "",
         day_of_week: "",
         time: "",
-        zoom_link: "",
+        meet_spot: "",
         classes: [],
         goals: ""
     });
 
     const [error, setError] = useState("");
+    const [isErrorVisible, setIsErrorVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [classPickerValue, setClassPickerValue] = useState("");
+    const [isVisible, setIsVisible] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
+    const closeTimeoutRef = useRef(null);
+    const errorFadeTimeoutRef = useRef(null);
+    const errorClearTimeoutRef = useRef(null);
+
+    function clearErrorTimers() {
+        if (errorFadeTimeoutRef.current) {
+            clearTimeout(errorFadeTimeoutRef.current);
+            errorFadeTimeoutRef.current = null;
+        }
+        if (errorClearTimeoutRef.current) {
+            clearTimeout(errorClearTimeoutRef.current);
+            errorClearTimeoutRef.current = null;
+        }
+    }
+
+    function dismissError() {
+        clearErrorTimers();
+        setIsErrorVisible(false);
+        setError("");
+    }
+
+    useEffect(() => {
+        if (!error) return;
+
+        clearErrorTimers();
+        setIsErrorVisible(true);
+
+        errorFadeTimeoutRef.current = setTimeout(() => {
+            setIsErrorVisible(false);
+        }, ERROR_VISIBLE_MS);
+
+        errorClearTimeoutRef.current = setTimeout(() => {
+            setError("");
+        }, ERROR_VISIBLE_MS + ERROR_FADE_MS);
+
+        return () => {
+            clearErrorTimers();
+        };
+    }, [error]);
+
+    useEffect(() => {
+        const animationFrame = requestAnimationFrame(() => {
+            setIsVisible(true);
+        });
+
+        return () => {
+            cancelAnimationFrame(animationFrame);
+            if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+            }
+            clearErrorTimers();
+        };
+    }, []);
+
+    function requestClose() {
+        if (isClosing) return;
+        setIsClosing(true);
+        setIsVisible(false);
+
+        closeTimeoutRef.current = setTimeout(() => {
+            if (onClose) onClose();
+        }, MODAL_ANIMATION_MS);
+    }
 
     function handleChange(e) {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
-        setError("");
+        dismissError();
     }
 
     function handleClassChange(e) {
@@ -71,7 +140,7 @@ export default function CreateGroupModal({ onClose, onCreated }) {
                 classes: [...prev.classes, selectedClass]
             };
         });
-        setError("");
+        dismissError();
     }
 
     function removeClass(selectedClass) {
@@ -79,7 +148,7 @@ export default function CreateGroupModal({ onClose, onCreated }) {
             ...prev,
             classes: prev.classes.filter(c => c !== selectedClass)
         }));
-        setError("");
+        dismissError();
     }
 
     function validate() {
@@ -119,7 +188,7 @@ export default function CreateGroupModal({ onClose, onCreated }) {
             if (!res.ok) throw new Error(data.error || "Failed to create group");
 
             onCreated?.(data.group);
-            onClose();
+            requestClose();
         } catch (err) {
             setError(err.message);
         }
@@ -128,8 +197,12 @@ export default function CreateGroupModal({ onClose, onCreated }) {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-xl max-h-[90vh] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
+        <div
+            className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-colors duration-200 ease-out ${isVisible ? "bg-black/40" : "bg-black/0"}`}
+        >
+            <div
+                className={`w-full max-w-xl max-h-[90vh] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-200 ease-out ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+            >
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900">Create Study Group</h2>
@@ -138,7 +211,7 @@ export default function CreateGroupModal({ onClose, onCreated }) {
                     </div>
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={requestClose}
                         className="h-9 w-9 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
                         aria-label="Close modal"
                     >
@@ -171,7 +244,7 @@ export default function CreateGroupModal({ onClose, onCreated }) {
                                 name="day_of_week"
                                 value={form.day_of_week}
                                 onChange={handleChange}
-                                className="w-full text-black rounded-lg border border-gray-300 px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                className="w-full text-black rounded-lg border  border-gray-300 px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
                             >
                                 <option value="">Select Day</option>
                                 {DAYS.map(day => (
@@ -189,7 +262,7 @@ export default function CreateGroupModal({ onClose, onCreated }) {
                                 name="time"
                                 value={form.time}
                                 onChange={handleChange}
-                                className="w-full text-black rounded-lg border border-gray-300 px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                className="w-full text-black rounded-lg border border-gray-300 px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
                             >
                                 <option value="">Select Time</option>
                                 {TIMES.map(({ value, label }) => (
@@ -200,14 +273,14 @@ export default function CreateGroupModal({ onClose, onCreated }) {
                     </div>
 
                     <div>
-                        <label htmlFor="zoom_link" className="block text-sm font-medium text-gray-700 mb-1">
-                            Zoom Link <span className="text-xs text-gray-400">(optional)</span>
+                        <label htmlFor="meet_spot" className="block text-sm font-medium text-gray-700 mb-1">
+                            Study Location <span className="text-xs text-gray-400">(optional)</span>
                         </label>
                         <input
-                            id="zoom_link"
-                            name="zoom_link"
+                            id="meet_spot"
+                            name="meet_spot"
                             placeholder="https://..."
-                            value={form.zoom_link}
+                            value={form.meet_spot}
                             onChange={handleChange}
                             className="w-full text-black rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
                         />
@@ -222,7 +295,7 @@ export default function CreateGroupModal({ onClose, onCreated }) {
                             name="classes"
                             value={classPickerValue}
                             onChange={handleClassChange}
-                            className="w-full text-black rounded-lg border border-gray-300 px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            className="w-full text-black rounded-lg border border-gray-300 px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
                         >
                             <option value="">Select Class to Add</option>
                             {classes.filter(cls => !form.classes.includes(cls)).map(cls => (
@@ -258,13 +331,17 @@ export default function CreateGroupModal({ onClose, onCreated }) {
                     </div>
 
                     {error && (
-                        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+                        <div
+                            className={`rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 transition-opacity duration-300 ${isErrorVisible ? "opacity-100" : "opacity-0"}`}
+                        >
+                            {error}
+                        </div>
                     )}
 
                     <div className="flex justify-end gap-3 pt-1">
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={requestClose}
                             className="cursor-pointer px-4 py-2 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
                         >
                             Cancel

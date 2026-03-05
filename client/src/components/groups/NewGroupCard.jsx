@@ -1,35 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 
 import { HiDotsVertical } from "react-icons/hi";
-import { API_BASE } from "../lib/api";
-import ClassPill from "./ClassPill";
-
-
-function formatTime(timeStr) {
-    if (!timeStr || typeof timeStr !== "string") return "TBD";
-    const [hour, minute] = timeStr.split(":").map(Number);
-    if (Number.isNaN(hour) || Number.isNaN(minute)) return timeStr;
-
-    const date = new Date();
-    date.setHours(hour, minute, 0, 0);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
-
-function normalizeClasses(classes) {
-    if (!classes) return [];
-    if (Array.isArray(classes)) return classes;
-
-    if (typeof classes === "string") {
-        try {
-            const parsed = JSON.parse(classes);
-            if (Array.isArray(parsed)) return parsed;
-        } catch {
-            return classes.split(",").map(v => v.trim()).filter(Boolean);
-        }
-    }
-
-    return [];
-}
+import { API_BASE } from "../../lib/api";
+import ClassPill from "../ClassPill";
+import { formatTime, normalizeClasses } from "../../lib/helpers";
 
 export default function NewGroupCard({ group, currentUserId, onLeave }) {
     const classList = normalizeClasses(group?.classes);
@@ -177,19 +151,19 @@ export default function NewGroupCard({ group, currentUserId, onLeave }) {
             {/* Meeting Link */}
             <div className="mb-4">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-                    Meeting Link
+                    Study Location
                 </p>
-                {group?.zoom_link ? (
+                {group?.meet_spot ? (
                     <a
-                        href={group.zoom_link}
+                        href={group.meet_spot}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm text-indigo-600 hover:text-indigo-700 break-all"
                     >
-                        {group.zoom_link}
+                        {group.meet_spot}
                     </a>
                 ) : (
-                    <p className="text-sm text-gray-500">No meeting link provided</p>
+                    <p className="text-sm text-gray-500">None provided</p>
                 )}
             </div>
 

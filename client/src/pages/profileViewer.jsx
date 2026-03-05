@@ -1,6 +1,10 @@
 import Navbar from "../components/navbar.jsx";
 import { Link } from "react-router-dom";
 import { placeholderClasses, placeholderGroups, placeholderSchedules } from "./placeholders.jsx";
+import { useEffect, useState } from "react";
+import { API_BASE, authHeaders } from "../lib/api.js";
+import { formatTime } from "../lib/helpers.js";
+import { CreateGroupModal, GroupModal } from "../components";
 
 // --- BEGIN PLACEHOLDER ---
 
@@ -32,17 +36,29 @@ function getScheduleString(s) {
     return `${day} ${formatTime(s.start_time)}-${formatTime(s.end_time)}`;
 }
 
-function StudyGroupComponent({ group }) {
-    const schedules = getSchedulesForGroup(group.id);
-    const scheduleStr = schedules.map(getScheduleString).join(", ");
-
+function StudyGroupComponent({ group, currentUserId, onView }) {
     return (
-        <li key={group.id} className="flex items-center justify-between p-3 border rounded-md">
-            <div>
-                <p className="font-medium text-gray-800">{group.title}</p>
-                <p className="text-sm text-gray-500">{scheduleStr}</p>
+        <li className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+                <p className="font-semibold text-gray-800">{group.group_name}</p>
+                <p className="text-sm text-gray-500 mt-1">{group?.day_of_week || "TBD"}, {formatTime(group?.time)}</p>
             </div>
-            <button className=" bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm  text-indigo-700 rounded font-medium">View</button>
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+                <button
+                    type="button"
+                    onClick={() => onView?.(group)}
+                    className="bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm text-indigo-700 rounded font-medium"
+                >
+                    View
+                </button>
+                <button
+                    type="button"
+                    disabled={currentUserId !== group.owner_id}
+                    className="bg-amber-50 hover:bg-amber-100 cursor-pointer px-3 py-1 text-sm text-amber-700 rounded font-medium"
+                >
+                    Edit
+                </button>
+            </div>
         </li>
     );
 }
@@ -66,11 +82,110 @@ export default function ProfileViewer() {
     const userGroups = user.groupIds.map(getGroupById);
     const userClasses = user.classIds.map(getClassById);
 
+    const [groups, setGroups] = useState([]);
+    const [currentUserId, setCurrentUserId] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [selectedGroup, setSelectedGroup] = useState(null);
+    const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        async function getUser() {
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/me`, {
+                    headers: authHeaders(),
+                    signal: controller.signal,
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    throw new Error(data.error || "Failed to fetch user info");
+                }
+
+                setCurrentUserId(data.user?.id || null);
+            } catch (err) {
+                if (err.name === "AbortError") return;
+                console.error("Error fetching user info:", err);
+            }
+        }
+
+        getUser();
+
+        async function fetchMyGroups() {
+            setLoading(true);
+            setError("");
+
+            try {
+                const response = await fetch(`${API_BASE}/api/study-groups/mine`, {
+                    method: "GET",
+                    headers: {
+                        ...authHeaders(),
+                    },
+                    signal: controller.signal,
+                });
+
+                const payload = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    throw new Error(payload.error || "Failed to load your groups.");
+                }
+
+                setGroups(Array.isArray(payload.groups) ? payload.groups : []);
+            } catch (err) {
+                if (err.name === "AbortError") return;
+                setError(err.message || "Failed to load your groups.");
+            } finally {
+                if (!controller.signal.aborted) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        fetchMyGroups();
+        return () => controller.abort();
+    }, []);
+
+    const handleRemoveGroup = (groupId) => {
+        setGroups(prev => prev.filter(g => g.id !== groupId));
+    };
+
+    const handleOpenGroupModal = (group) => {
+        setSelectedGroup(group);
+    };
+
+    const handleCloseGroupModal = () => {
+        setSelectedGroup(null);
+    };
+
+    const handleCreateGroup = (createdGroup) => {
+        if (!createdGroup) return;
+        setGroups(prev => [createdGroup, ...prev]);
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="header-section">
                 <Navbar />
             </header>
+
+            {selectedGroup && (
+                <GroupModal
+                    group={selectedGroup}
+                    onClose={handleCloseGroupModal}
+                    onLeave={handleRemoveGroup}
+                />
+            )}
+
+            {isCreateGroupOpen && (
+                <CreateGroupModal
+                    onClose={() => setIsCreateGroupOpen(false)}
+                    onCreated={handleCreateGroup}
+                />
+            )}
 
             <main className="max-w-4xl mx-auto p-6">
                 <section className="bg-white rounded-lg shadow-sm p-6">
@@ -117,14 +232,48 @@ export default function ProfileViewer() {
 
                 <section className="mt-6 grid grid-cols-1 gap-6">
                     <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
-                        <h3 className="text-lg font-medium text-gray-800">Study Groups</h3>
+                        <div className="flex items-center justify-between gap-3">
+                            <h3 className="text-lg font-medium text-gray-800">Study Groups</h3>
+                            <button
+                                type="button"
+                                onClick={() => setIsCreateGroupOpen(true)}
+                                className="bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm text-indigo-700 rounded font-medium"
+                            >
+                                + Create Group
+                            </button>
+                        </div>
                         <p className="text-sm text-gray-500 mt-1">Groups this user is participating in.</p>
 
-                        <ul className="mt-4 space-y-3">
-                            {
-                                userGroups.map((g) => g ?
-                                    <StudyGroupComponent key={g.id} group={g} /> : null)}
-                        </ul>
+                        {loading && (
+                            <div className="rounded-lg bg-white p-8 text-center">
+                                <p className="text-gray-500 text-lg">Loading your groups...</p>
+                            </div>
+                        )}
+
+                        {!loading && error && (
+                            <div className="rounded-lg border border-red-200 mt-2 bg-red-50 p-4 text-red-700 mb-4">
+                                {error}
+                            </div>
+                        )}
+
+                        {!loading && !error && groups.length === 0 && (
+                            <div className="rounded-l mt-2 bg-white p-8 text-center">
+                                <p className="text-gray-500 text-lg">You are not in any groups yet.</p>
+                            </div>
+                        )}
+
+                        {!loading && !error && groups.length > 0 && (
+                            <ul className="mt-4 space-y-3">
+                                {groups.map((group) => (
+                                    <StudyGroupComponent
+                                        key={group.id}
+                                        group={group}
+                                        currentUserId={currentUserId}
+                                        onView={handleOpenGroupModal}
+                                    />
+                                ))}
+                            </ul>
+                        )}
                     </div>
 
                     {/* Contact moved to top panel to keep groups list full-height */}

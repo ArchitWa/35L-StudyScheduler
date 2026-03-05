@@ -71,7 +71,8 @@ export default function GroupDashboard() {
         fetchMyGroups();
         return () => controller.abort();
     }, []);
-
+    
+    console.log(groups)
     function handleRemoveGroup(groupId) {
         setGroups(prev => prev.filter(g => g.id !== groupId));
     }
