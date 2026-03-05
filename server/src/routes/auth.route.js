@@ -40,7 +40,7 @@ router.get("/me", requireUser, async (req, res) => {
     try {
       const { error: insertError } = await supabase
         .from("users")
-        .insert({ id: user.id });
+        .insert({ id: user.id, avatar_url: user.user_metadata?.avatar_url|| null, email: user.email });
       if (!insertError) {
         const result = await supabase
           .from("users")

@@ -54,7 +54,7 @@ const HomepageLoggedIn = ({ profile }) => {
           <ActionCard
             actionLabel="Create Group"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/plus-math.png"
-            url="/group_create"
+            url="/create-group"
           />
         </div>
       </main>

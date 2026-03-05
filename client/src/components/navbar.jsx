@@ -7,7 +7,7 @@ const Navbar = () => {
     const off_style = "flex items-center gap-[30px] !text-white";
 
     return (
-        <nav className="flex items-center justify-between px-10 py-5 bg-blue-500">
+        <nav className="flex items-center justify-between px-10 py-5 bg-linear-to-br from-[#1a4a8f] to-[#2d6cb5]">
             <div className="text-[1.25rem] font-semibold">StudyScheduler</div>
             <div className="flex items-center gap-7.5">
                 <NavLink to="/" className={({ isActive }) => isActive ? on_style : off_style}>Home</NavLink>
@@ -24,7 +24,7 @@ const Navbar = () => {
                         <button
                             type="button"
                             onClick={logout}
-                            className="!bg-transparent border border-white text-white text-[0.9rem] font-semibold px-4 py-2 rounded cursor-pointer hover:bg-white/10 transition-colors"
+                            className="bg-transparent! border border-white text-white text-[0.9rem] font-semibold px-4 py-2 rounded cursor-pointer hover:bg-white/10 transition-colors"
                         >
                             Log&nbsp;out
                         </button>
