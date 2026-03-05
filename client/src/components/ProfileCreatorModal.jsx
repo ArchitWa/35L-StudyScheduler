@@ -15,15 +15,15 @@ const YEARS = [
     "Senior"
 ];
 
-export default function ProfileEditorModal({ onClose, onUpdated, initialProfile }) {
+export default function ProfileCreatorModal({ onCreated }) {
     const { fetchUser } = useAuth();
     const [form, setForm] = useState({
-        name: initialProfile?.name || "",
-        major: initialProfile?.major || "",
-        year: initialProfile?.year || "",
-        phone: initialProfile?.phone || "",
-        bio: initialProfile?.bio || "",
-        classes: initialProfile?.classes || []
+        name: "",
+        major: "",
+        year: "",
+        phone: "",
+        bio: "",
+        classes: []
     });
 
     const [error, setError] = useState("");
@@ -31,8 +31,6 @@ export default function ProfileEditorModal({ onClose, onUpdated, initialProfile 
     const [loading, setLoading] = useState(false);
     const [classPickerValue, setClassPickerValue] = useState("");
     const [isVisible, setIsVisible] = useState(false);
-    const [isClosing, setIsClosing] = useState(false);
-    const closeTimeoutRef = useRef(null);
     const errorFadeTimeoutRef = useRef(null);
     const errorClearTimeoutRef = useRef(null);
 
@@ -79,22 +77,9 @@ export default function ProfileEditorModal({ onClose, onUpdated, initialProfile 
 
         return () => {
             cancelAnimationFrame(animationFrame);
-            if (closeTimeoutRef.current) {
-                clearTimeout(closeTimeoutRef.current);
-            }
             clearErrorTimers();
         };
     }, []);
-
-    function requestClose() {
-        if (isClosing) return;
-        setIsClosing(true);
-        setIsVisible(false);
-
-        closeTimeoutRef.current = setTimeout(() => {
-            if (onClose) onClose();
-        }, MODAL_ANIMATION_MS);
-    }
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -157,12 +142,11 @@ export default function ProfileEditorModal({ onClose, onUpdated, initialProfile 
 
             const data = await res.json();
 
-            if (!res.ok) throw new Error(data.error || "Failed to update profile");
+            if (!res.ok) throw new Error(data.error || "Failed to create profile");
 
             // Refresh the user profile in the context
             await fetchUser();
-            onUpdated?.(data.user);
-            requestClose();
+            onCreated?.(data.user);
         } catch (err) {
             setError(err.message);
         }
@@ -179,18 +163,10 @@ export default function ProfileEditorModal({ onClose, onUpdated, initialProfile 
             >
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
-                        <p className="text-sm text-gray-500">Update your profile information below.</p>
+                        <h2 className="text-xl font-bold text-gray-900">Create Your Profile</h2>
+                        <p className="text-sm text-gray-500">Set up your profile to get started.</p>
                         <p className="text-xs text-gray-400 mt-1">Fields marked with <span className="text-red-500">*</span> are required.</p>
                     </div>
-                    <button
-                        type="button"
-                        onClick={requestClose}
-                        className="h-9 w-9 rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
-                        aria-label="Close modal"
-                    >
-                        ✕
-                    </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-150px)] px-6 py-5 space-y-5">
@@ -311,19 +287,11 @@ export default function ProfileEditorModal({ onClose, onUpdated, initialProfile 
 
                     <div className="flex justify-end gap-3 pt-1">
                         <button
-                            type="button"
-                            onClick={requestClose}
-                            className="cursor-pointer px-4 py-2 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
-                        >
-                            Cancel
-                        </button>
-
-                        <button
                             type="submit"
                             disabled={loading}
                             className="bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-4 py-2 text-sm text-indigo-700 rounded font-medium disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {loading ? "Saving..." : "Save Changes"}
+                            {loading ? "Creating..." : "Create Profile"}
                         </button>
                     </div>
                 </form>
