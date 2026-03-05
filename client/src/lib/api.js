@@ -22,3 +22,22 @@ export async function fetchStudyGroups() {
   const data = await response.json();
   return data.groups;
 }
+
+export async function getUser() {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
+      headers: authHeaders(),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to fetch user info");
+    }
+
+    return data.user?.id || null;
+  } catch (err) {
+    if (err.name === "AbortError") return;
+    console.error("Error fetching user info:", err);
+  }
+}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/navbar.jsx";
 import GroupCard from "../components/groupcard.jsx";
-import { fetchStudyGroups } from "../lib/api.js";
+import { fetchStudyGroups, getUser } from "../lib/api.js";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -10,24 +10,13 @@ export default function GroupList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_PAGE);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
     useEffect(() => {
         const loadGroups = async () => {
             try {
                 const fetchedGroups = await fetchStudyGroups();
-                // Map backend data to frontend format
-                const mappedGroups = fetchedGroups.map(group => ({
-                    id: group.id,
-                    title: group.group_name,
-                    description: group.goals,
-                    meeting_link: group.meet_spot,
-                    schedule_ids: [{
-                        day: group.day_of_week,
-                        start_time: group.time,
-                    }],
-                    class_ids: group.classes || [],
-                }));
-                setGroups(mappedGroups);
+                setGroups(fetchedGroups);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -35,6 +24,8 @@ export default function GroupList() {
             }
         };
         loadGroups();
+        getUser().then(user => setCurrentUserId(user || null))
+            .catch(err => console.error("Error fetching user info:", err));
     }, []);
 
     const handleLoadMore = () => {
@@ -88,7 +79,7 @@ export default function GroupList() {
 
                 <div className="space-y-4 mb-8">
                     {visibleGroups.map((group) => (
-                        <GroupCard key={group.id} group={group} />
+                        <GroupCard key={group.id} group={group} currentUserId={currentUserId} />
                     ))}
                 </div>
 

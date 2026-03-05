@@ -3,11 +3,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { API_BASE, authHeaders } from "../lib/api.js";
 import { formatTime } from "../lib/helpers.js";
-import { ProfileEditorModal } from "../components";
-import { GroupModal, CreateGroupModal, EditGroupModal } from "../components/";
+import { GroupModal, CreateGroupModal, EditGroupModal, ProfileEditorModal, ClassPill } from "../components/";
 import { useAuth } from "../context/AuthContext.jsx";
-import ClassPill from "../components/ClassPill.jsx";
-
 
 function StudyGroupComponent({ group, currentUserId, onView, onEdit }) {
     return (

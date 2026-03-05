@@ -137,36 +137,61 @@ router.get("/mine", requireUser, async (req, res) => {
         return res.status(400).json({ error: err.message });
     }
 });
+
 // GET /study-groups
 router.get("/", async (_req, res) => {
-    try {
-        const { data: groups, error: groupsError } = await supabase
-            .from("study_groups")
-            .select("*")
-            .order("created_at", { ascending: false });
+  try {
+    // 1️⃣ Fetch groups
+    const { data: groups, error: groupsError } = await supabase
+      .from("study_groups")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-        if (groupsError) throw groupsError;
+    if (groupsError) throw groupsError;
 
-        const groupIds = groups.map(g => g.id);
-        const { data: memberships, error: membershipError } = await supabase
-            .from("group_memberships")
-            .select("user_id, group_id")
-            .in("group_id", groupIds);
-
-        if (membershipError) throw membershipError;
-
-        const groupsWithMembers = groups.map(group => ({
-            ...group,
-            members: memberships
-                .filter(m => m.group_id === group.id)
-                .map(m => m.user_id)
-        }));
-
-        res.json({ groups: groupsWithMembers });
-    } catch (err) {
-        console.error(err);
-        res.status(400).json({ error: err.message });
+    if (!groups || groups.length === 0) {
+      return res.json({ groups: [] });
     }
+
+    const groupIds = groups.map(g => g.id);
+
+    // 2️⃣ Fetch memberships
+    const { data: memberships, error: membershipError } = await supabase
+      .from("group_memberships")
+      .select("user_id, group_id")
+      .in("group_id", groupIds);
+
+    if (membershipError) throw membershipError;
+
+    const userIds = [...new Set(memberships.map(m => m.user_id))];
+
+    // 3️⃣ Fetch user avatars
+    const { data: profiles, error: profilesError } = await supabase
+      .from("users")
+      .select("id, avatar_url")
+      .in("id", userIds);
+
+    if (profilesError) throw profilesError;
+
+    // 4️⃣ Attach users to each group
+    const groupsWithUsers = groups.map(group => {
+      const users = memberships
+        .filter(m => m.group_id === group.id)
+        .map(m => profiles.find(p => p.id === m.user_id))
+        .filter(Boolean);
+
+      return {
+        ...group,
+        users
+      };
+    });
+
+    res.json({ groups: groupsWithUsers });
+
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // GET /study-groups/:id
