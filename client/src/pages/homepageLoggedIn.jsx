@@ -2,8 +2,12 @@ import PartnerCard from '../components/partnercard.jsx';
 import ActionCard from '../components/actioncard.jsx';
 import Navbar from "../components/navbar.jsx"
 
+import { useNavigate } from 'react-router';
+
 // --- Logged-in Homepage Component ---
 const HomepageLoggedIn = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="font-sans min-h-screen flex flex-col">
       {/* Header Section (Blue) */}
@@ -11,7 +15,7 @@ const HomepageLoggedIn = () => {
 
 
       {/* Main Content Section (White/Gray) */}
-      <main className="bg-[#f4f6f8] flex-grow p-10 flex flex-col items-center">
+      <main className="bg-[#f4f6f8] grow p-10 flex flex-col items-center">
         <div className="text-center py-10">
           <h1 className="text-3xl font-bold mb-4">Welcome, [User Name]!</h1>
         </div>
@@ -55,7 +59,7 @@ const HomepageLoggedIn = () => {
           <ActionCard
             actionLabel="Create Group"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/plus-math.png"
-            onAction={() => window.alert("Create Group isn't implemented yet.")}
+            onAction={() => navigate('/create-group')}
           />
         </div>
       </main>

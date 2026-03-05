@@ -9,6 +9,7 @@ import ProfileEditor from './pages/profileEditor.jsx'
 import GroupList from "./pages/studyGroupList.jsx"
 import Login from "./pages/Login.jsx"
 import SignUp from "./pages/SignUp.jsx"
+import GroupDashboard from './pages/GroupDashboard.jsx'
 import './App.css'
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/groups" element={<GroupList />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/group-dashboard" element={<GroupDashboard />} />
       </Routes>
     </Router>
   );
