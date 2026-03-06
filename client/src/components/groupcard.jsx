@@ -9,10 +9,14 @@ export default function GroupCard({ group, currentUserId, onLeave }) {
     const classList = normalizeClasses(group?.classes);
     const users = Array.isArray(group?.users) ? group.users.filter(Boolean) : [];
     const isOwner = group?.group_owner === currentUserId;
+    const isCurrentUserMember = users.some((user) => String(user?.id) === String(currentUserId));
+    const canRequestToJoin = !isOwner && !isCurrentUserMember;
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false);
     const [leaveError, setLeaveError] = useState("");
+    const [joinError, setJoinError] = useState("");
+    const [joinSuccess, setJoinSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const menuRef = useRef(null);
 
@@ -65,6 +69,46 @@ export default function GroupCard({ group, currentUserId, onLeave }) {
         }
     }
 
+    async function handleRequestToJoin() {
+        if (!group?.id) return;
+
+        if (!canRequestToJoin) {
+            setJoinError("You are already in this group.");
+            setJoinSuccess("");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setJoinError("");
+            setJoinSuccess("");
+
+            const res = await fetch(`${API_BASE}/api/membership-requests`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+                },
+                body: JSON.stringify({ group_id: group.id }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                setJoinError(data.error || "Failed to send join request");
+                return;
+            }
+
+            setJoinSuccess("Join request sent.");
+            setMenuOpen(false);
+        } catch (err) {
+            console.error(err);
+            setJoinError("Something went wrong while requesting to join");
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="relative w-full max-w-3xl bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
 
@@ -92,6 +136,14 @@ export default function GroupCard({ group, currentUserId, onLeave }) {
                                 Edit Group
                             </button>
                         )}
+
+                        <button
+                            onClick={handleRequestToJoin}
+                            disabled={loading || !canRequestToJoin}
+                            className="w-full text-center px-4 py-2 text-sm text-indigo-700 hover:bg-gray-100 border-b border-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? "Sending..." : canRequestToJoin ? "Request to Join" : "Already in Group"}
+                        </button>
 
                         <button
                             onClick={() => {
@@ -135,6 +187,18 @@ export default function GroupCard({ group, currentUserId, onLeave }) {
             {leaveError && (
                 <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                     {leaveError}
+                </div>
+            )}
+
+            {joinError && (
+                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                    {joinError}
+                </div>
+            )}
+
+            {joinSuccess && (
+                <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+                    {joinSuccess}
                 </div>
             )}
 
