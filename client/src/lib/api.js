@@ -52,3 +52,67 @@ export async function fetchGroupDetails(groupId) {
   const data = await response.json();
   return data;
 }
+
+export async function fetchGroupRequests(groupId) {
+  const response = await fetch(`${API_BASE}/api/membership-requests/${groupId}`, {
+    headers: authHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch group requests');
+  }
+  const data = await response.json();
+  return data.requests;
+}
+
+export async function updateMembershipRequestStatus(requestId, status) {
+  const response = await fetch(`${API_BASE}/api/membership-requests/${requestId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify({ status }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to update membership request');
+  }
+
+  return data.request;
+}
+
+export async function leaveStudyGroup(groupId) {
+  const response = await fetch(`${API_BASE}/api/study-groups/${groupId}/leave`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to leave group');
+  }
+
+  return data;
+}
+
+export async function deleteStudyGroup(groupId) {
+  const response = await fetch(`${API_BASE}/api/study-groups/${groupId}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+
+  if (response.status === 204) {
+    return { success: true };
+  }
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to delete group');
+  }
+
+  return data;
+}

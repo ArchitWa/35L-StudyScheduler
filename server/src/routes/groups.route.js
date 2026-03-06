@@ -140,58 +140,58 @@ router.get("/mine", requireUser, async (req, res) => {
 
 // GET /study-groups
 router.get("/", async (_req, res) => {
-  try {
-    // 1️⃣ Fetch groups
-    const { data: groups, error: groupsError } = await supabase
-      .from("study_groups")
-      .select("*")
-      .order("created_at", { ascending: false });
+    try {
+        // 1️⃣ Fetch groups
+        const { data: groups, error: groupsError } = await supabase
+            .from("study_groups")
+            .select("*")
+            .order("created_at", { ascending: false });
 
-    if (groupsError) throw groupsError;
+        if (groupsError) throw groupsError;
 
-    if (!groups || groups.length === 0) {
-      return res.json({ groups: [] });
+        if (!groups || groups.length === 0) {
+            return res.json({ groups: [] });
+        }
+
+        const groupIds = groups.map(g => g.id);
+
+        // 2️⃣ Fetch memberships
+        const { data: memberships, error: membershipError } = await supabase
+            .from("group_memberships")
+            .select("user_id, group_id")
+            .in("group_id", groupIds);
+
+        if (membershipError) throw membershipError;
+
+        const userIds = [...new Set(memberships.map(m => m.user_id))];
+
+        // 3️⃣ Fetch user avatars
+        const { data: profiles, error: profilesError } = await supabase
+            .from("users")
+            .select("id, avatar_url")
+            .in("id", userIds);
+
+        if (profilesError) throw profilesError;
+
+        // 4️⃣ Attach users to each group
+        const groupsWithUsers = groups.map(group => {
+            const users = memberships
+                .filter(m => m.group_id === group.id)
+                .map(m => profiles.find(p => p.id === m.user_id))
+                .filter(Boolean);
+
+            return {
+                ...group,
+                users
+            };
+        });
+
+        res.json({ groups: groupsWithUsers });
+
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ error: err.message });
     }
-
-    const groupIds = groups.map(g => g.id);
-
-    // 2️⃣ Fetch memberships
-    const { data: memberships, error: membershipError } = await supabase
-      .from("group_memberships")
-      .select("user_id, group_id")
-      .in("group_id", groupIds);
-
-    if (membershipError) throw membershipError;
-
-    const userIds = [...new Set(memberships.map(m => m.user_id))];
-
-    // 3️⃣ Fetch user avatars
-    const { data: profiles, error: profilesError } = await supabase
-      .from("users")
-      .select("id, avatar_url")
-      .in("id", userIds);
-
-    if (profilesError) throw profilesError;
-
-    // 4️⃣ Attach users to each group
-    const groupsWithUsers = groups.map(group => {
-      const users = memberships
-        .filter(m => m.group_id === group.id)
-        .map(m => profiles.find(p => p.id === m.user_id))
-        .filter(Boolean);
-
-      return {
-        ...group,
-        users
-      };
-    });
-
-    res.json({ groups: groupsWithUsers });
-
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ error: err.message });
-  }
 });
 
 // GET /study-groups/:id
@@ -214,6 +214,24 @@ router.get("/:id", async (req, res) => {
 
         if (membersError) throw membersError;
 
+        const userIds = [...new Set(members.map(m => m.user_id))];
+
+        // 3️⃣ Fetch user avatars
+        const { data: profiles, error: profilesError } = await supabase
+            .from("users")
+            .select("id, name, avatar_url, major")
+            .in("id", userIds);
+
+        // sort profiles to have the user's own profile first (if they are a member)
+        const currentUserId = req.user ? req.user.id : null;
+        const sortedProfiles = profiles.sort((a, b) => {
+            if (a.id === currentUserId) return -1;
+            if (b.id === currentUserId) return 1;
+            return 0;
+        });
+
+        if (profilesError) throw profilesError;
+
         const { data: requests, error: requestsError } = await supabase
             .from("membership_requests")
             .select(`
@@ -230,7 +248,7 @@ router.get("/:id", async (req, res) => {
         res.json({
             group: {
                 ...group,
-                members: members.map(m => m.user_id),
+                users: sortedProfiles,
                 requests: requests, // includes pending + processed requests
             }
         });

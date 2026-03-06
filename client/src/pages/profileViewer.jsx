@@ -1,9 +1,9 @@
 import Navbar from "../components/navbar.jsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { API_BASE, authHeaders } from "../lib/api.js";
 import { formatTime } from "../lib/helpers.js";
-import { GroupModal, CreateGroupModal, EditGroupModal, ProfileEditorModal, ClassPill } from "../components/";
+import { CreateGroupModal, EditGroupModal, ProfileEditorModal, ClassPill } from "../components/";
 import { useAuth } from "../context/AuthContext.jsx";
 
 function StudyGroupComponent({ group, currentUserId, onView, onEdit }) {
@@ -35,6 +35,7 @@ function StudyGroupComponent({ group, currentUserId, onView, onEdit }) {
 }
 
 export default function ProfileViewer() {
+    const navigate = useNavigate();
     const { isLoggedIn, loadingProfile, profile } = useAuth();
     const [groups, setGroups] = useState([]);
     const [outgoingRequests, setOutgoingRequests] = useState([]);
@@ -42,7 +43,6 @@ export default function ProfileViewer() {
     const [error, setError] = useState("");
     const [outgoingError, setOutgoingError] = useState("");
     const [cancelingRequestId, setCancelingRequestId] = useState(null);
-    const [selectedGroup, setSelectedGroup] = useState(null);
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
     const [editingGroup, setEditingGroup] = useState(null);
@@ -148,16 +148,9 @@ export default function ProfileViewer() {
     const userClasses = user.classes;
 
 
-    const handleRemoveGroup = (groupId) => {
-        setGroups(prev => prev.filter(g => g.id !== groupId));
-    };
-
-    const handleOpenGroupModal = (group) => {
-        setSelectedGroup(group);
-    };
-
-    const handleCloseGroupModal = () => {
-        setSelectedGroup(null);
+    const handleViewGroup = (group) => {
+        if (!group?.id) return;
+        navigate(`/groups/${group.id}`);
     };
 
     const handleCreateGroup = (createdGroup) => {
@@ -190,11 +183,6 @@ export default function ProfileViewer() {
                 users: group.users || updatedGroup.users || []
             };
         }));
-
-        setSelectedGroup(prev => {
-            if (!prev || prev.id !== updatedGroup.id) return prev;
-            return { ...prev, ...updatedGroup };
-        });
     };
 
     const formatRequestedAt = (timestamp) => {
@@ -237,14 +225,6 @@ export default function ProfileViewer() {
             <header className="header-section">
                 <Navbar />
             </header>
-
-            {selectedGroup && (
-                <GroupModal
-                    group={selectedGroup}
-                    onClose={handleCloseGroupModal}
-                    onLeave={handleRemoveGroup}
-                />
-            )}
 
             {isCreateGroupOpen && (
                 <CreateGroupModal
@@ -290,8 +270,9 @@ export default function ProfileViewer() {
                                 </div>
 
                                 <button
+                                    type="button"
                                     onClick={() => setIsProfileEditorOpen(true)}
-                                    className="px-4 py-2 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded cursor-pointer"
+                                    className="bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm text-indigo-700 rounded font-medium"
                                 >
                                     Edit Profile
                                 </button>
@@ -360,7 +341,7 @@ export default function ProfileViewer() {
                                         key={group.id}
                                         group={group}
                                         currentUserId={profile.id}
-                                        onView={handleOpenGroupModal}
+                                        onView={handleViewGroup}
                                         onEdit={handleOpenEditGroupModal}
                                     />
                                 ))}

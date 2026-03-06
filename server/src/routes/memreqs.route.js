@@ -199,36 +199,53 @@ router.get("/mine", requireUser, async (req, res) => {
 });
 
 /**
- * GET /membership-requests?group_id=xxx
+ * GET /membership-requests/:id
  * Owner lists all requests for their group
  */
-router.get("/", requireUser, async (req, res) => {
+router.get("/:id", requireUser, async (req, res) => {
   const user = req.user;
-  const { group_id } = req.query;
+  const { id: group_id } = req.params;
 
-  if (!group_id) return res.status(400).json({ error: "group_id is required" });
+  if (!group_id) {
+    return res.status(400).json({ error: "group_id is required" });
+  }
 
   try {
     // Check that requester is group owner
-    const { data: group } = await supabase
+    const { data: group, error: groupError } = await supabase
       .from("study_groups")
-      .select("*")
+      .select("id, group_owner")
       .eq("id", group_id)
       .single();
 
-    if (!group || group.group_owner !== user.id) {
-      return res.status(403).json({ error: "Only group owner can view requests" });
+    if (groupError) throw groupError;
+
+    if (!group) {
+      return res.status(403).json({ error: "No group found" });
     }
 
+    // Fetch requests with user details
     const { data: requests, error } = await supabase
       .from("membership_requests")
-      .select("id, user_id, status, created_at, updated_at")
+      .select(`
+        id,
+        status,
+        created_at,
+        updated_at,
+        user:user_id (
+          id,
+          name,
+          avatar_url,
+          major
+        )
+      `)
       .eq("group_id", group_id)
       .order("created_at", { ascending: true });
 
     if (error) throw error;
 
     res.json({ requests });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
