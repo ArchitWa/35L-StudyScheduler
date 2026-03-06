@@ -41,6 +41,7 @@ export default function ProfileViewer() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [outgoingError, setOutgoingError] = useState("");
+    const [cancelingRequestId, setCancelingRequestId] = useState(null);
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
@@ -203,6 +204,34 @@ export default function ProfileViewer() {
         return date.toLocaleString();
     };
 
+    const handleCancelRequest = async (requestId) => {
+        if (!requestId) return;
+
+        try {
+            setCancelingRequestId(requestId);
+            setOutgoingError("");
+
+            const response = await fetch(`${API_BASE}/api/membership-requests/${requestId}`, {
+                method: "DELETE",
+                headers: {
+                    ...authHeaders(),
+                },
+            });
+
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(payload.error || "Failed to cancel request.");
+            }
+
+            setOutgoingRequests((prev) => prev.filter((request) => request.id !== requestId));
+        } catch (err) {
+            setOutgoingError(err.message || "Failed to cancel request.");
+        } finally {
+            setCancelingRequestId(null);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="header-section">
@@ -360,11 +389,21 @@ export default function ProfileViewer() {
                                 {outgoingRequests.map((request) => (
                                     <li
                                         key={request.id}
-                                        className="flex flex-col gap-1 rounded-lg border border-gray-200 bg-gray-50 p-4"
+                                        className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between"
                                     >
-                                        <p className="font-semibold text-gray-800">{request.group_name || "Unknown Group"}</p>
-                                        <p className="text-sm text-gray-500">Requested at: {formatRequestedAt(request.created_at)}</p>
-                                        <p className="text-sm text-amber-700">Status: Pending</p>
+                                        <div className="min-w-0">
+                                            <p className="font-semibold text-gray-800">{request.group_name || "Unknown Group"}</p>
+                                            <p className="text-sm text-gray-500">Requested at: {formatRequestedAt(request.created_at)}</p>
+                                            <p className="text-sm text-amber-700">Status: Pending</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleCancelRequest(request.id)}
+                                            disabled={cancelingRequestId === request.id}
+                                            className="bg-red-50 hover:bg-red-100 cursor-pointer px-3 py-1 text-sm text-red-700 rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {cancelingRequestId === request.id ? "Canceling..." : "Cancel Request"}
+                                        </button>
                                     </li>
                                 ))}
                             </ul>
