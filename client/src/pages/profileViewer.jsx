@@ -82,18 +82,6 @@ export default function ProfileViewer() {
         return () => controller.abort();
     }, []);
 
-    if (!isLoggedIn) {
-        return (
-            <div className="min-h-screen bg-gray-50">
-                <main className="rounded-lg bg-white p-8 text-center">
-                    <p className="text-gray-500 text-lg">
-                        You must be <Link to="/login" className="text-blue-500 underline">logged in</Link> to view this page.
-                    </p>
-                </main>
-            </div>
-        );
-    }
-
 
     if (loading || loadingProfile) {
         return (
@@ -103,6 +91,18 @@ export default function ProfileViewer() {
                 </header>
                 <main className="rounded-lg bg-white p-8 text-center">
                     <p className="text-gray-500 text-lg">Loading your profile...</p>
+                </main>
+            </div>
+        );
+    }
+
+    if (!isLoggedIn) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <main className="rounded-lg bg-white p-8 text-center">
+                    <p className="text-gray-500 text-lg">
+                        You must be <Link to="/login" className="text-blue-500 underline">logged in</Link> to view this page.
+                    </p>
                 </main>
             </div>
         );

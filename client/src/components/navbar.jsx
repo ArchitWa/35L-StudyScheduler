@@ -1,10 +1,17 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const Navbar = () => {
     const { isLoggedIn, logout, user } = useAuth();
+    const navigate = useNavigate();
+
     const on_style = "flex items-center gap-[30px] border-b-2 border-white pb-[4px] text-[0.9rem] !text-white";
     const off_style = "flex items-center gap-[30px] !text-white";
+
+    const handleLogout = async () => {
+        await logout();
+        navigate("/");
+    }
 
     return (
         <nav className="flex items-center justify-between px-10 py-5 bg-linear-to-br from-[#1a4a8f] to-[#2d6cb5]">
@@ -23,7 +30,7 @@ const Navbar = () => {
                     <>
                         <button
                             type="button"
-                            onClick={logout}
+                            onClick={handleLogout}
                             className="bg-transparent! border border-white text-white text-[0.9rem] font-semibold px-4 py-2 rounded cursor-pointer hover:bg-white/10 transition-colors"
                         >
                             Log&nbsp;out
