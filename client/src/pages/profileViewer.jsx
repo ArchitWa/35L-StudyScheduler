@@ -37,8 +37,11 @@ function StudyGroupComponent({ group, currentUserId, onView, onEdit }) {
 export default function ProfileViewer() {
     const { isLoggedIn, loadingProfile, profile } = useAuth();
     const [groups, setGroups] = useState([]);
+    const [outgoingRequests, setOutgoingRequests] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [outgoingError, setOutgoingError] = useState("");
+    const [cancelingRequestId, setCancelingRequestId] = useState(null);
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
@@ -51,6 +54,7 @@ export default function ProfileViewer() {
         async function fetchMyGroups() {
             setLoading(true);
             setError("");
+            setOutgoingError("");
 
             try {
                 const response = await fetch(`${API_BASE}/api/study-groups/mine`, {
@@ -71,6 +75,29 @@ export default function ProfileViewer() {
             } catch (err) {
                 if (err.name === "AbortError") return;
                 setError(err.message || "Failed to load your groups.");
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/membership-requests/mine`, {
+                    method: "GET",
+                    headers: {
+                        ...authHeaders(),
+                    },
+                    signal: controller.signal,
+                });
+
+                const payload = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    throw new Error(payload.error || "Failed to load your outgoing join requests.");
+                }
+
+                const pendingRequests = (Array.isArray(payload.requests) ? payload.requests : [])
+                    .filter((request) => request?.status === "pending");
+                setOutgoingRequests(pendingRequests);
+            } catch (err) {
+                if (err.name === "AbortError") return;
+                setOutgoingError(err.message || "Failed to load your outgoing join requests.");
             } finally {
                 if (!controller.signal.aborted) {
                     setLoading(false);
@@ -168,6 +195,41 @@ export default function ProfileViewer() {
             if (!prev || prev.id !== updatedGroup.id) return prev;
             return { ...prev, ...updatedGroup };
         });
+    };
+
+    const formatRequestedAt = (timestamp) => {
+        if (!timestamp) return "Unknown time";
+        const date = new Date(timestamp);
+        if (Number.isNaN(date.getTime())) return timestamp;
+        return date.toLocaleString();
+    };
+
+    const handleCancelRequest = async (requestId) => {
+        if (!requestId) return;
+
+        try {
+            setCancelingRequestId(requestId);
+            setOutgoingError("");
+
+            const response = await fetch(`${API_BASE}/api/membership-requests/${requestId}`, {
+                method: "DELETE",
+                headers: {
+                    ...authHeaders(),
+                },
+            });
+
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(payload.error || "Failed to cancel request.");
+            }
+
+            setOutgoingRequests((prev) => prev.filter((request) => request.id !== requestId));
+        } catch (err) {
+            setOutgoingError(err.message || "Failed to cancel request.");
+        } finally {
+            setCancelingRequestId(null);
+        }
     };
 
     return (
@@ -301,6 +363,48 @@ export default function ProfileViewer() {
                                         onView={handleOpenGroupModal}
                                         onEdit={handleOpenEditGroupModal}
                                     />
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
+                    <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="text-lg font-medium text-gray-800">Outgoing Join Requests</h3>
+                        <p className="text-sm text-gray-500 mt-1">Requests you have sent to join other groups.</p>
+
+                        {!loading && outgoingError && (
+                            <div className="rounded-lg border border-red-200 mt-2 bg-red-50 p-4 text-red-700 mb-4">
+                                {outgoingError}
+                            </div>
+                        )}
+
+                        {!loading && !outgoingError && outgoingRequests.length === 0 && (
+                            <div className="rounded-l mt-2 bg-white p-8 text-center">
+                                <p className="text-gray-500 text-lg">No outgoing requests yet.</p>
+                            </div>
+                        )}
+
+                        {!loading && !outgoingError && outgoingRequests.length > 0 && (
+                            <ul className="mt-4 space-y-3">
+                                {outgoingRequests.map((request) => (
+                                    <li
+                                        key={request.id}
+                                        className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+                                    >
+                                        <div className="min-w-0">
+                                            <p className="font-semibold text-gray-800">{request.group_name || "Unknown Group"}</p>
+                                            <p className="text-sm text-gray-500">Requested at: {formatRequestedAt(request.created_at)}</p>
+                                            <p className="text-sm text-amber-700">Status: Pending</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleCancelRequest(request.id)}
+                                            disabled={cancelingRequestId === request.id}
+                                            className="bg-red-50 hover:bg-red-100 cursor-pointer px-3 py-1 text-sm text-red-700 rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {cancelingRequestId === request.id ? "Canceling..." : "Cancel Request"}
+                                        </button>
+                                    </li>
                                 ))}
                             </ul>
                         )}

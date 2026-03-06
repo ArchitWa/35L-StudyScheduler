@@ -112,6 +112,93 @@ router.put("/:id", requireUser, async (req, res) => {
 });
 
 /**
+ * DELETE /membership-requests/:id
+ * Requester cancels their own outgoing pending join request
+ */
+router.delete("/:id", requireUser, async (req, res) => {
+  const user = req.user;
+  const { id } = req.params;
+
+  try {
+    const { data: request, error: requestError } = await supabase
+      .from("membership_requests")
+      .select("id, user_id, status")
+      .eq("id", id)
+      .single();
+
+    if (requestError || !request) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+
+    if (request.user_id !== user.id) {
+      return res.status(403).json({ error: "You can only cancel your own requests" });
+    }
+
+    if (request.status !== "pending") {
+      return res.status(400).json({ error: "Only pending requests can be canceled" });
+    }
+
+    const { error: deleteError } = await supabase
+      .from("membership_requests")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
+
+    res.json({ success: true, id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /membership-requests/mine
+ * Authenticated user lists outgoing join requests they created
+ */
+router.get("/mine", requireUser, async (req, res) => {
+  const user = req.user;
+
+  try {
+    const { data: requests, error: requestsError } = await supabase
+      .from("membership_requests")
+      .select("id, group_id, status, created_at, updated_at")
+      .eq("user_id", user.id)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (requestsError) throw requestsError;
+
+    const groupIds = (requests || []).map((request) => request.group_id).filter(Boolean);
+
+    let groupNameById = {};
+    if (groupIds.length > 0) {
+      const { data: groups, error: groupsError } = await supabase
+        .from("study_groups")
+        .select("id, group_name")
+        .in("id", groupIds);
+
+      if (groupsError) throw groupsError;
+
+      groupNameById = (groups || []).reduce((acc, group) => {
+        acc[group.id] = group.group_name;
+        return acc;
+      }, {});
+    }
+
+    const outgoingRequests = (requests || []).map((request) => ({
+      ...request,
+      group_name: groupNameById[request.group_id] || "Unknown Group",
+    }));
+
+    res.json({ requests: outgoingRequests });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * GET /membership-requests?group_id=xxx
  * Owner lists all requests for their group
  */
