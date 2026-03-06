@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const Navbar = () => {
-    const { isLoggedIn, logout, user } = useAuth();
+    const { isLoggedIn, logout, user, profile } = useAuth();
     const navigate = useNavigate();
 
     const on_style = "flex items-center gap-[30px] border-b-2 border-white pb-[4px] text-[0.9rem] !text-white";
@@ -13,6 +13,7 @@ const Navbar = () => {
         navigate("/");
     }
 
+    console.log(profile);
     return (
         <nav className="flex items-center justify-between px-10 py-5 bg-linear-to-br from-[#1a4a8f] to-[#2d6cb5]">
             <div className="text-[1.25rem] font-semibold">StudyScheduler</div>
@@ -35,7 +36,7 @@ const Navbar = () => {
                         >
                             Log&nbsp;out
                         </button>
-                        <span className="text-white font-medium user-name">{user?.email || '[User]'}</span>
+                        <span className="text-white font-medium user-name">{profile?.name || '[User]'}</span>
                     </>
                 ) : (
                     <>
