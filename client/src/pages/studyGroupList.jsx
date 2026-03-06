@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/navbar.jsx";
 import GroupCard from "../components/groupcard.jsx";
+import { CreateGroupModal } from "../components/";
 import { fetchStudyGroups, getUser } from "../lib/api.js";
 
 const ITEMS_PER_PAGE = 10;
@@ -11,6 +12,7 @@ export default function GroupList() {
     const [error, setError] = useState(null);
     const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_PAGE);
     const [currentUserId, setCurrentUserId] = useState(null);
+    const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
 
     useEffect(() => {
         const loadGroups = async () => {
@@ -30,6 +32,12 @@ export default function GroupList() {
 
     const handleLoadMore = () => {
         setDisplayedCount(prev => prev + ITEMS_PER_PAGE);
+    };
+
+    const handleCreateGroup = (createdGroup) => {
+        if (!createdGroup) return;
+        setGroups(prev => [createdGroup, ...prev]);
+        setDisplayedCount(prev => prev + 1);
     };
 
     const visibleGroups = groups.slice(0, displayedCount);
@@ -71,9 +79,25 @@ export default function GroupList() {
                 <Navbar />
             </header>
 
+            {isCreateGroupOpen && (
+                <CreateGroupModal
+                    onClose={() => setIsCreateGroupOpen(false)}
+                    onCreated={handleCreateGroup}
+                />
+            )}
+
             <main className="max-w-4xl mx-auto p-6">
                 <section className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Study Groups</h1>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                        <h1 className="text-3xl font-bold text-gray-900">Study Groups</h1>
+                        <button
+                            type="button"
+                            onClick={() => setIsCreateGroupOpen(true)}
+                            className="mr-20 bg-indigo-50 hover:bg-indigo-100 cursor-pointer px-3 py-1 text-sm text-indigo-700 rounded font-medium"
+                        >
+                            + Create Group
+                        </button>
+                    </div>
                     <p className="text-gray-600">Discover and join study groups for your classes</p>
                 </section>
 
