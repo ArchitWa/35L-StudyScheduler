@@ -5,3 +5,5 @@ export { default as ClassPill } from "./ClassPill.jsx";
 export { default as ProfileEditorModal } from "./ProfileEditorModal.jsx";
 export { default as ProfileCreatorModal } from "./ProfileCreatorModal.jsx";
 export { default as EditGroupModal } from "./groups/EditGroupModal.jsx";
+
+export { default as Avatar } from "./Avatar.jsx";

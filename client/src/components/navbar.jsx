@@ -13,7 +13,6 @@ const Navbar = () => {
         navigate("/");
     }
 
-    console.log(profile);
     return (
         <nav className="flex items-center justify-between px-10 py-5 bg-linear-to-br from-[#1a4a8f] to-[#2d6cb5]">
             <div className="text-[1.25rem] font-semibold">StudyScheduler</div>

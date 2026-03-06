@@ -1,206 +1,24 @@
-import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { HiDotsVertical } from "react-icons/hi";
-import { API_BASE } from "../lib/api";
+import Avatar from "./Avatar";
 import ClassPill from "./ClassPill";
 import { formatTime, normalizeClasses } from "../lib/helpers";
 
-export default function GroupCard({ group, currentUserId, onLeave }) {
+export default function GroupCard({ group }) {
+    const navigate = useNavigate();
     const classList = normalizeClasses(group?.classes);
     const users = Array.isArray(group?.users) ? group.users.filter(Boolean) : [];
-    const isOwner = group?.group_owner === currentUserId;
-    const isCurrentUserMember = users.some((user) => String(user?.id) === String(currentUserId));
-    const canRequestToJoin = !isOwner && !isCurrentUserMember;
 
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false);
-    const [leaveError, setLeaveError] = useState("");
-    const [joinError, setJoinError] = useState("");
-    const [joinSuccess, setJoinSuccess] = useState("");
-    const [loading, setLoading] = useState(false);
-    const menuRef = useRef(null);
-
-    // close dropdown on outside click
-    useEffect(() => {
-        function handleClickOutside(e) {
-            if (menuRef.current && !menuRef.current.contains(e.target)) {
-                setMenuOpen(false);
-                setConfirmLeaveOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    async function handleLeave() {
+    function handleCardClick() {
         if (!group?.id) return;
-
-        try {
-            setLoading(true);
-            setLeaveError("");
-
-            const res = await fetch(
-                `${API_BASE}/api/study-groups/${group.id}/leave`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-                    },
-                }
-            );
-
-            const data = await res.json().catch(() => ({}));
-
-            if (!res.ok) {
-                setLeaveError(data.error || "Failed to leave group");
-                return;
-            }
-
-            // Remove from UI
-            if (onLeave) onLeave(group.id);
-
-        } catch (err) {
-            console.error(err);
-            setLeaveError("Something went wrong while leaving the group");
-        } finally {
-            setLoading(false);
-            setMenuOpen(false);
-            setConfirmLeaveOpen(false);
-        }
-    }
-
-    async function handleRequestToJoin() {
-        if (!group?.id) return;
-
-        if (!canRequestToJoin) {
-            setJoinError("You are already in this group.");
-            setJoinSuccess("");
-            return;
-        }
-
-        try {
-            setLoading(true);
-            setJoinError("");
-            setJoinSuccess("");
-
-            const res = await fetch(`${API_BASE}/api/membership-requests`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-                },
-                body: JSON.stringify({ group_id: group.id }),
-            });
-
-            const data = await res.json().catch(() => ({}));
-
-            if (!res.ok) {
-                setJoinError(data.error || "Failed to send join request");
-                return;
-            }
-
-            setJoinSuccess("Join request sent.");
-            setMenuOpen(false);
-        } catch (err) {
-            console.error(err);
-            setJoinError("Something went wrong while requesting to join");
-        } finally {
-            setLoading(false);
-        }
+        navigate(`/groups/${group.id}`);
     }
 
     return (
-        <div className="relative w-full max-w-3xl bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow">
-
-            {/* 3 Dot Menu */}
-            <div className="absolute top-4 right-4" ref={menuRef}>
-                <button
-                    onClick={() => setMenuOpen(prev => !prev)}
-                    className="text-gray-500 hover:text-gray-700 text-xl"
-                >
-                    <HiDotsVertical />
-                </button>
-
-                {menuOpen && (
-                    <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-
-                        {isOwner && (
-                            <button
-                                onClick={() => {
-                                    // setMenuOpen(false);
-                                    // TODO: navigate to edit page or open edit modal
-                                    console.log("Edit group");
-                                }}
-                                className="w-full text-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-100"
-                            >
-                                Edit Group
-                            </button>
-                        )}
-
-                        <button
-                            onClick={handleRequestToJoin}
-                            disabled={loading || !canRequestToJoin}
-                            className="w-full text-center px-4 py-2 text-sm text-indigo-700 hover:bg-gray-100 border-b border-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? "Sending..." : canRequestToJoin ? "Request to Join" : "Already in Group"}
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                // setConfirmLeaveOpen(true);
-                                // setMenuOpen(false);
-                                console.log("Leave group");
-                            }}
-                            disabled={loading}
-                            className="w-full text-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                        >
-                            Leave Group
-                        </button>
-                    </div>
-                )}
-
-                {confirmLeaveOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-3">
-                        <p className="text-sm text-gray-700 mb-3">Leave this group? You can request to join again later.</p>
-                        <div className="flex justify-end gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setConfirmLeaveOpen(false)}
-                                className="px-3 py-1.5 text-xs rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
-                                disabled={loading}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleLeave}
-                                className="px-3 py-1.5 text-xs rounded bg-red-50 text-red-700 hover:bg-red-100"
-                                disabled={loading}
-                            >
-                                {loading ? "Leaving..." : "Leave"}
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {leaveError && (
-                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    {leaveError}
-                </div>
-            )}
-
-            {joinError && (
-                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    {joinError}
-                </div>
-            )}
-
-            {joinSuccess && (
-                <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-                    {joinSuccess}
-                </div>
-            )}
+        <div
+            className="relative w-full max-w-3xl bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+            onClick={handleCardClick}
+        >
 
             {/* Title */}
             <div className="mb-2">
@@ -223,6 +41,7 @@ export default function GroupCard({ group, currentUserId, onLeave }) {
                         href={group.meet_spot}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="text-sm text-indigo-600 hover:text-indigo-700 break-all"
                     >
                         {group.meet_spot}
@@ -263,10 +82,10 @@ export default function GroupCard({ group, currentUserId, onLeave }) {
                 <div className="flex -space-x-2">
                     {users.length > 0 ? (
                         users.map((user, index) => (
-                            <img
+                            <Avatar
                                 key={user.id || `${group?.id}-user-${index}`}
-                                src={user.avatar_url || "https://i.pravatar.cc/100?img=1"}
-                                alt="member avatar"
+                                src={user.avatar_url}
+                                alt={`${user?.name || "member"} avatar`}
                                 className="w-9 h-9 rounded-full border-2 border-white object-cover"
                             />
                         ))
