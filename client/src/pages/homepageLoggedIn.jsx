@@ -61,19 +61,14 @@ const HomepageLoggedIn = ({ profile }) => {
         <h2 className="text-2xl font-bold text-[#333] mb-8" style={{ marginTop: '20px' }}>What would you like to do?</h2>
         <div className="flex justify-center gap-5 w-full max-w-4xl mb-12 overflow-x-auto">
           <ActionCard
-            actionLabel="Edit Profile"
+            actionLabel="View Profile"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/edit--v1.png"
-            url="/profile_edit"
+            url="/profile"
           />
           <ActionCard
             actionLabel="Find Group"
             iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/search--v1.png"
             url="/groups"
-          />
-          <ActionCard
-            actionLabel="Create Group"
-            iconUrl="https://img.icons8.com/ios-filled/100/2d6cb5/plus-math.png"
-            url="/create-group"
           />
         </div>
       </main>
