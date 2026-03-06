@@ -41,3 +41,14 @@ export async function getUser() {
     console.error("Error fetching user info:", err);
   }
 }
+
+export async function fetchGroupDetails(groupId) {
+  const response = await fetch(`${API_BASE}/api/study-groups/${groupId}`, {
+    headers: authHeaders(),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch group details');
+  }
+  const data = await response.json();
+  return data;
+}
