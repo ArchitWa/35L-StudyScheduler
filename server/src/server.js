@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import groupRoutes from "./routes/groups.route.js";
 import memreqsRoutes from "./routes/memreqs.route.js";
+import recommendationRoutes from "./routes/recommendations.route.js";
 
 const app = express();
 dotenv.config();
@@ -27,11 +28,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/study-groups", groupRoutes);
 app.use("/api/membership-requests", memreqsRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
 

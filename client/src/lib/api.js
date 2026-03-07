@@ -53,6 +53,19 @@ export async function fetchGroupDetails(groupId) {
   return data;
 }
 
+export async function fetchRecommendedGroups(limit = 3) {
+  const response = await fetch(`${API_BASE}/api/recommendations/groups?limit=${limit}`, {
+    headers: authHeaders(),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to fetch recommendations");
+  }
+
+  return data.recommendations || [];
+}
+
 export async function fetchGroupRequests(groupId) {
   const response = await fetch(`${API_BASE}/api/membership-requests/${groupId}`, {
     headers: authHeaders(),
